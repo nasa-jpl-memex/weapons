@@ -1,0 +1,26 @@
+header{
+    min-width: 100%;
+    min-height:100%;
+    background:url(../img/hero-image.png)  no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+.bg-light-gray{
+    background: #aaa;
+}
+
+#apps, #collaborators{
+    padding-bottom: 5%;
+}
+
+#apps .application-outline img{
+    border: 5px solid #aaa;
+    margin-bottom: 5%;
+}
+
+#collaborators img{
+    display: inline;
+}
