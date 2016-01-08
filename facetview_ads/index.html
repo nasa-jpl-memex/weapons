@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ATF FacetView: Ads view</title>
+
+  <script type="text/javascript" src="vendor/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+
+  <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+  <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>  
+
+  <script type="text/javascript" src="vendor/linkify/1.0/jquery.linkify-1.0-min.js"></script>  
+  
+  <link rel="stylesheet" href="vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.css">
+  <script type="text/javascript" src="vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.min.js"></script>
+
+  <script type="text/javascript" src="jquery.facetview.js"></script>
+
+  <link rel="stylesheet" href="css/facetview.css">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Load c3.css -->
+  <link href="vendor/c3-0.4.10/c3.css" rel="stylesheet" type="text/css">
+
+  <!-- Load d3.js and c3.js -->
+  <script src="vendor/d3-3.5.6/d3.min.js" charset="utf-8"></script>
+  <script src="vendor/c3-0.4.10/c3.min.js"></script>
+
+  <script type="text/javascript">
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+jQuery(document).ready(function($) {
+  var query = getParameterByName('query');
+  $('.facet-view-simple').facetview({
+      // "config_file": "http://imagecat.dyndns.org/atf/facetview/atf_images_cfg.json"
+    "search_url": "http://imagecat.dyndns.org:8983/solr/imagecatdev/select?",
+    "search_index": "solr",
+    "text_limit": 512,
+    "object_limit": 10,
+    "q" : query,
+    "facets": [
+        {"field":"persons", "display":"Persons"},
+        {"field":"phonenumbers", "display":"Phone Numbers"},
+        //{"field":"keywords", "display":"Keywords"},
+        {"field":"weaponnames", "display":"Weapon Names"},
+        {"field":"weapontypes", "display":"Weapon Types"},
+        {"field":"ner_money_ts_md", "display":"Weapon Cost"},
+        {"field":"host", "display":"Weapon Website"},
+        {"field":"locations", "display":"Locations"},
+        {"field":"organizations", "display":"Organizations"},
+        //{"field":"age", "display":"Age"},
+        {"field":"dates", "display":"Dates"},
+        //{"field":"image_links", "display":"Image Links"},
+    ],
+    "display_images" : true,
+    "fields": ["title", "content", "persons", "weaponnames", "weapontypes",
+               "ner_money_ts_md", "host", "locations", "organizations", "url"],
+    "result_display" : [ 
+        [
+          {
+            "pre" : "<b>URL:  </b><text>",
+            "field" : "url",
+            "post" : "</text><br>"
+          }
+        ],
+        [
+          {
+            "pre" : "<b>Persons:  </b>",
+            "field" : "persons",
+            "post" : "<br>"
+          }
+        ],
+        [
+          {
+            "pre" : "<b>Weapon Names:  </b><text>",
+            "field" : "weaponnames",
+            "post" : "</text><br>"
+          }
+        ],
+        [
+          {
+            "pre" : "<b>Weapon Types:  </b><text>",
+            "field" : "weapontypes",
+            "post" : "</text><br>"
+          }
+        ],
+        [
+          {
+            "pre" : "<b>Weapon Cost:  </b><text>",
+            "field" : "ner_money_ts_md",
+            "post" : "</text><br>"
+          }
+        ],
+        [
+          {
+            "pre" : "<b>Content:  </b><text>",
+            "field" : "content",
+            "post" : "</text><br>"
+          }
+        ], 
+        [
+          {
+            "pre" : "<b>Locations:   </b><text>",
+            "field" : "locations",
+            "post" : "</text><br>"
+          }
+        ],
+        [
+          {
+            "pre" : "<b>Organizations:  </b><text>",
+            "field" : "organizations",
+            "post" : "</text><br>"
+          }
+        ],
+    ],
+    "linkify" : true
+
+    });
+// $('.facetview_filtershow' ).trigger( "click" );
+});
+  </script>
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="brand" href="#">FacetView</a>
+      <ul class="nav">
+        <li><a href="http://github.com/darth-pr/facetview">Github</a></li>
+        <li><a href="http://github.com/darth-pr/facetview/issues">Issues</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container"> 
+  <div class="content">
+    <div class="page-header">
+      <h1>
+      Weapons Ads - Search
+      </h1>
+    </div>
+
+    <div class="facet-view-simple"></div>
+
+  </div>
+
+</div>
+</body>
+</html>
