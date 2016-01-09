@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>WeaponsViz</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Bootstrap theme CSS -->
+    <link href="dist/css/bootstrap-theme.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="starter-template.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="resources/bower_components/nvd3/build/nv.d3.css">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="assets/js/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+
+       /* Style for calendarView */
+      .day {
+        fill: #fff;
+        stroke: #ccc;
+      }
+      .month {
+        fill: none;
+        stroke: #000;
+        stroke-width: 2px;
+      }
+      .RdYlGn .q0-11{fill:rgb(165,0,38)}
+      .RdYlGn .q1-11{fill:rgb(215,48,39)}
+      .RdYlGn .q2-11{fill:rgb(244,109,67)}
+      .RdYlGn .q3-11{fill:rgb(253,174,97)}
+      .RdYlGn .q4-11{fill:rgb(254,224,139)}
+      .RdYlGn .q5-11{fill:rgb(255,255,191)}
+      .RdYlGn .q6-11{fill:rgb(217,239,139)}
+      .RdYlGn .q7-11{fill:rgb(166,217,106)}
+      .RdYlGn .q8-11{fill:rgb(102,189,99)}
+      .RdYlGn .q9-11{fill:rgb(26,152,80)}
+      .RdYlGn .q10-11{fill:rgb(0,104,55)}
+
+      #filterView {
+        position:fixed;
+        z-index: 1000000000;
+        width:100%;
+      }
+
+      .nv-controlsWrap {
+        border: 1;
+        border-width: 1px;
+        border
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+    <form id="inputForm" name="inputForm">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">WeaponsViz</a>
+        </div>
+        <div id="loader" style="float:right;display:none;"><h4><span class="label label-danger">Loading <img src="resources/images/loader1.gif" width="18" height="18" /></span></h4></div>
+      </div>
+
+    </nav>
+
+    <div id="filterView" class="container">
+      <div id="filter" class="panel panel-primary text-center">
+        <div class="panel-heading">
+          <h3 class="panel-title">Filters</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+              <div class="col-md-6">
+                <label>Query : </label> <input type="text" class="box" id="query" name="query" value="*:*" style="width:85%" onblur="search()" />
+              </div>
+              <div class="col-md-3">
+                <label>Start Date : </label> <input class="datepicker box" id="startDate" name="startDate" data-date-format="yyyy-mm-dd" onblur="search()" value="2010-01-01" />
+              </div>
+              <div class="col-md-3">
+                <label>End Date : </label> <input class="datepicker box" id="endDate" name="endDate" data-date-format="yyyy-mm-dd" onblur="search()" />
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      
+      <br/><br/><br/><br/><br/><br/>
+
+      <div id="calendarView" class="panel panel-info text-center">
+        <div class="panel-heading">
+          <h3 class="panel-title">Calendar Visualization of Weapon Ads and Images</h3>
+        </div>
+        <div class="panel-body">
+          <label>Boxes</label> represent calendar dates. <label>Color</label> represents the concentration of Weapon Ads and Images. Higher the concentration, darker the color.
+        </div>
+      </div>
+
+      <br/>
+
+      <div ng-app="saChart" class="panel panel-info text-center">
+        <div class="panel-heading">
+          <h3 class="panel-title">Weapon Types (with maximum ads and images) Vs Calendar Dates</h3>
+          <div class="text-right">
+            <label>Top Results : </label> <input type="number" class="box" id="rowsSachart" name="rowsSachart" value="1000" onblur="callSac()" />
+          </div>
+        </div>
+        <div id="saChartCtr" ng-controller="sacController" class="panel-body">
+            <nvd3 options="options" data="data"></nvd3>
+        </div>
+      </div>
+
+      <br/>
+
+      <div id="geomap" class="panel panel-info">
+        <div class="panel-heading text-center">
+          <h3 class="panel-title">Geomap from Latitute and Longitude of Weapon Ads and Images</h3>
+          <div class="text-right">
+            <label>Top Results : </label> <input type="number" class="box" id="rowsGeomap" name="rowsGeomap" value="1000" onblur="search()" />
+          </div>
+        </div>
+        <div class="panel-body row">
+          <div class="col-md-12 text-center">
+            <div id="map">
+            </div>
+          </div>
+          <div class="col-md-12 text-center"> 
+            <ul id="locationnames" class="list-inline">
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <br/>
+      <div class="row">
+        <div class="col-md-6">
+          <div id="pieChart" class="panel panel-info text-left">
+            <div class="panel-heading">
+              <h3 class="panel-title">Countries with maximum Weapon Ads and Images</h3>
+              <div class="text-right">
+                <label>Count : </label> <input type="number" class="box" id="rowsPie" name="rowsPie" value="10" onblur="search()" />
+              </div>
+            </div>
+            <div id="pieChartCtr" ng-controller="pieChartController" class="panel-body">
+                <nvd3 options="options" data="data"></nvd3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.container -->
+    </form>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+   
+    <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="dist/js/bootstrap.min.js"></script>
+    <script src="dist/js/bootstrap-datepicker.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="resources/scripts/d3.v3.min.js"></script>
+    <script src="resources/bower_components/angular/angular.js"></script>
+    <script src="resources/bower_components/nvd3/build/nv.d3.js"></script>
+    <script src="resources/scripts/angular-nvd3.js"></script>
+
+    <!-- Geomap -->
+    <script src="resources/scripts/d3.geo.projection.v0.min.js"></script>
+    <script src="resources/scripts/topojson.v0.min.js"></script>
+    <script src="resources/scripts/jsonp.js"></script>
+    
+    <script src="resources/scripts/common.js"></script>
+
+    <!-- Charts -->
+    <script src="resources/scripts/sac.js"></script>
+    <script src="resources/scripts/pieChart.js"></script>
+    <script src="resources/scripts/calendarView.js"></script>
+    <script src="resources/scripts/geomap.js"></script>
+
+    
+    <script>
+
+      // Document Ready
+      $(document).ready(function() {
+        $('#endDate').val(getDate());
+        $('.datepicker').datepicker({
+            format:"yyyy-mm-dd"
+        });
+        angular.bootstrap(document.getElementById("pieChart"), ['pieChart']);
+        search();
+        //d3.selectAll(".nv-controlsWrap").append('<path stroke="black" d="M20 25 l220 0"></path><path stroke="black" d="M20 5 l220 0"></path><path stroke="black" d="M20 25 v0 -20"></path><path stroke="black" d="M240 25 v0 -20"></path>');
+      });
+
+      // Search on change of values
+      function search() {
+
+        $("#loader").show();
+
+        // Cleaning Charts
+        d3.select("#calendarView .panel-body").selectAll("svg").remove();
+        d3.select("#map").selectAll("svg").remove();
+
+        // Input Form
+        var inputForm = document.getElementById("inputForm");
+        var startDate = inputForm.startDate.value + "T00:00:00Z";
+        var endDate = inputForm.endDate.value + "T23:59:59Z";
+        var dateRange = "[" + startDate + " TO " + endDate + "]";
+        var sac = angular.element(document.getElementById("saChartCtr")).scope();
+        var pie = angular.element(document.getElementById("pieChartCtr")).scope();
+
+        // Refresh Charts
+        refreshCalendarView(inputForm.query.value, startDate, endDate);
+        sac.$apply(function() {
+          sac.refreshSac(inputForm.query.value, inputForm.rowsSachart.value, startDate, endDate);
+        });
+        draw_map();
+        d3.json("resources/scripts/world-110m.json", draw_regions);
+        refreshGeomap(inputForm.query.value, inputForm.rowsGeomap.value, dateRange);
+        pie.$apply(function() {
+          pie.refreshPieChart(inputForm.query.value, inputForm.rowsPie.value, startDate, endDate);
+        });
+
+        $("#loader").fadeOut();
+      }
+      
+      function callSac() {
+        $("#loader").show();
+        var inputForm = document.getElementById("inputForm");
+        var startDate = inputForm.startDate.value + "T00:00:00Z";
+        var endDate = inputForm.endDate.value + "T23:59:59Z";
+        var sac = angular.element(document.getElementById("saChartCtr")).scope();
+        sac.$apply(function() {
+          sac.refreshSac(inputForm.query.value, inputForm.rowsSachart.value, startDate, endDate);
+        });
+        $("#loader").fadeOut();
+      }
+
+      function callGeomap() {
+        $("#loader").show();
+        d3.select("#map").selectAll("svg").remove();
+        var inputForm = document.getElementById("inputForm");
+        var startDate = inputForm.startDate.value + "T00:00:00Z";
+        var endDate = inputForm.endDate.value + "T23:59:59Z";
+        var dateRange = "[" + startDate + " TO " + endDate + "]";
+        draw_map();
+        d3.json("resources/scripts/world-110m.json", draw_regions);
+        refreshGeomap(inputForm.query.value, inputForm.rowsGeomap.value, dateRange);
+        $("#loader").fadeOut();
+      }
+
+      function callPie() {
+        $("#loader").show();
+        // Input Form
+        var inputForm = document.getElementById("inputForm");
+        var startDate = inputForm.startDate.value + "T00:00:00Z";
+        var endDate = inputForm.endDate.value + "T23:59:59Z";
+        var pie = angular.element(document.getElementById("pieChartCtr")).scope();
+        pie.$apply(function() {
+          pie.refreshPieChart(inputForm.query.value, inputForm.rowsPie.value, startDate, endDate);
+        });
+        $("#loader").fadeOut();
+      }
+
+    </script>
+
+  </body>
+</html>
