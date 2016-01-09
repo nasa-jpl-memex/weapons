@@ -2171,7 +2171,7 @@
     "dropdown_collections": false
   },
   "solr": {
-    "server": "/solr/",
+    "server": "./solr/",
     "core_name": "imagecatdev",
     "core_list": [
       "572studentsmerged",
