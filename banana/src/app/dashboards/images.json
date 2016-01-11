@@ -10,7 +10,7 @@
       ],
       "list": {
         "0": {
-          "query": "id:file\\:\\/data2\\/USC*",
+          "query": "*:*",
           "alias": "",
           "color": "#7EB26D",
           "id": 0,
@@ -34,8 +34,8 @@
           "to": "NOW/DAY%2B1DAY",
           "field": "indexedAt",
           "type": "time",
-          "fromDateObj": "2015-12-06T15:50:28.753Z",
-          "toDateObj": "2016-01-05T15:50:28.754Z",
+          "fromDateObj": "2015-12-12T18:08:18.693Z",
+          "toDateObj": "2016-01-11T18:08:18.693Z",
           "mandate": "must",
           "active": true,
           "alias": "",
@@ -48,6 +48,27 @@
     }
   },
   "rows": [
+    {
+      "title": "OVERVIEW",
+      "height": "10",
+      "editable": true,
+      "collapse": false,
+      "collapsable": true,
+      "panels": [
+        {
+          "error": false,
+          "span": 12,
+          "editable": true,
+          "type": "text",
+          "loadingEditor": false,
+          "status": "Stable",
+          "mode": "markdown",
+          "content": "Below is a dashboard intended to visualize the composition of the extracted weapons dataset.  The dashboard is organized first by rows, and then by panels.  In the second row you will find the _TIME WINDOW_ and _SEARCH_ panels, both of which apply global filters to the entire dashboard.  Currently the _TIME WINDOW_ panel is set to filter on the 'indexedAt' field, as all records have a value for that field.  The _GLOBAL FILTERS_ panel on the third row explicitly lists all global filters currently applied to the dashboard.  The _HITS_ type panels generally show the number of records that have a value for a particular field.",
+          "style": {},
+          "title": "OVERVIEW"
+        }
+      ]
+    },
     {
       "title": "Query and Time Window",
       "height": "50px",
@@ -100,8 +121,8 @@
           "type": "query",
           "label": "Search",
           "history": [
-            "id:file\\:\\/data2\\/USC*",
             "*:*",
+            "id:file\\:\\/data2\\/USC*",
             "organic",
             "*",
             "hello"
@@ -123,70 +144,80 @@
       "panels": [
         {
           "error": false,
-          "span": 3,
+          "span": 4,
           "editable": true,
           "spyable": true,
           "group": [
             "default"
           ],
-          "type": "filtering"
+          "type": "filtering",
+          "title": "GLOBAL FILTERS"
         },
         {
+          "error": false,
           "span": 2,
           "editable": true,
-          "type": "hits",
+          "type": "column",
           "loadingEditor": false,
-          "queries": {
-            "mode": "all",
-            "ids": [
-              0
-            ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
-            "basic_query": "",
-            "custom": ""
-          },
-          "style": {
-            "font-size": "10pt"
-          },
-          "arrangement": "horizontal",
-          "chart": "total",
-          "counter_pos": "above",
-          "donut": false,
-          "tilt": false,
-          "labels": true,
-          "spyable": true,
-          "show_queries": true,
-          "title": "Total Records"
+          "panels": [
+            {
+              "type": "hits",
+              "chart": "total",
+              "queries": {
+                "mode": "all",
+                "ids": [
+                  0
+                ],
+                "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+                "basic_query": "",
+                "custom": ""
+              },
+              "style": {
+                "font-size": "10pt"
+              },
+              "arrangement": "vertical",
+              "counter_pos": "above",
+              "donut": false,
+              "tilt": false,
+              "labels": true,
+              "spyable": true,
+              "show_queries": true,
+              "title": "Total Records"
+            },
+            {
+              "loading": false,
+              "sizeable": false,
+              "span": 12,
+              "height": "150px",
+              "editable": true,
+              "type": "hits",
+              "draggable": false,
+              "chart": "total",
+              "queries": {
+                "mode": "all",
+                "ids": [
+                  0
+                ],
+                "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+                "basic_query": "",
+                "custom": "&fq=dates:*"
+              },
+              "style": {
+                "font-size": "10pt"
+              },
+              "arrangement": "horizontal",
+              "counter_pos": "above",
+              "donut": false,
+              "tilt": false,
+              "labels": true,
+              "spyable": true,
+              "show_queries": true,
+              "title": "Records with Dates"
+            }
+          ]
         },
         {
-          "span": 2,
-          "editable": true,
-          "type": "hits",
-          "loadingEditor": false,
-          "queries": {
-            "mode": "all",
-            "ids": [
-              0
-            ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
-            "basic_query": "",
-            "custom": "&fq=dates:*"
-          },
-          "style": {
-            "font-size": "10pt"
-          },
-          "arrangement": "horizontal",
-          "chart": "total",
-          "counter_pos": "above",
-          "donut": false,
-          "tilt": false,
-          "labels": true,
-          "spyable": true,
-          "show_queries": true,
-          "title": "Total Records with dates"
-        },
-        {
-          "span": 5,
+          "span": 6,
           "editable": true,
           "type": "histogram",
           "loadingEditor": false,
@@ -196,7 +227,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.range=indexedAt&facet.range.start=NOW/DAY-30DAY&facet.range.end=NOW/DAY%2B1DAY&facet.range.gap=%2B12HOUR\n",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.range=indexedAt&facet.range.start=NOW/DAY-30DAY&facet.range.end=NOW/DAY%2B1DAY&facet.range.gap=%2B12HOUR\n",
             "custom": ""
           },
           "max_rows": 100000,
@@ -262,7 +293,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&rows=0&facet=true&facet.field=countries&facet.limit=300",
+            "query": "q=*%3A*&wt=json&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&rows=0&facet=true&facet.field=countries&facet.limit=300",
             "custom": ""
           },
           "mode": "count",
@@ -291,7 +322,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=countries&facet.limit=30&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=countries&facet.limit=30&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -395,7 +426,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&rows=0&facet=true&facet.field=states&facet.limit=300",
+            "query": "q=*%3A*&wt=json&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&rows=0&facet=true&facet.field=states&facet.limit=300",
             "custom": "&fq=countries:US"
           },
           "mode": "count",
@@ -424,7 +455,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=states&facet.limit=15&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=states&facet.limit=15&facet.missing=true",
             "custom": "&fq=countries:US"
           },
           "mode": "count",
@@ -519,7 +550,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=cities&facet.limit=15&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=cities&facet.limit=15&facet.missing=true",
             "custom": "&fq=countries:US"
           },
           "mode": "count",
@@ -623,7 +654,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=cameraserialnumber_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=cameraserialnumber_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -718,7 +749,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=author_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=author_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -813,7 +844,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=exifimageheight_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=exifimageheight_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -908,7 +939,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=exifimagewidth_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=exifimagewidth_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1003,7 +1034,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=software_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=software_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1098,7 +1129,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=make_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=make_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1202,7 +1233,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=cameraserialnumber_t_md:*"
           },
@@ -1229,7 +1260,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=author_t_md:*"
           },
@@ -1256,7 +1287,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=exifimageheight_t_md:*"
           },
@@ -1283,7 +1314,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=exifimagewidth_t_md:*"
           },
@@ -1310,7 +1341,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=software_t_md:*"
           },
@@ -1337,7 +1368,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=make_t_md:*"
           },
@@ -1373,7 +1404,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=exif:flash_b_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=exif:flash_b_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1468,7 +1499,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=scenetype_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=scenetype_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1563,7 +1594,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=lightsource_t_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=lightsource_t_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1658,7 +1689,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=geo:lat_d_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=geo:lat_d_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1753,7 +1784,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=geo:long_d_md&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=geo:long_d_md&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1848,7 +1879,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=location_latlons&facet.limit=5&facet.missing=true",
+            "query": "q=*%3A*&wt=json&rows=0&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&facet=true&facet.field=location_latlons&facet.limit=5&facet.missing=true",
             "custom": ""
           },
           "mode": "count",
@@ -1952,7 +1983,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=exif\\:flash_b_md:*"
           },
@@ -1979,7 +2010,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=scenetype_t_md:*"
           },
@@ -1993,7 +2024,8 @@
           "tilt": false,
           "labels": true,
           "spyable": true,
-          "show_queries": true
+          "show_queries": true,
+          "title": "scenetype_t_md"
         },
         {
           "span": 2,
@@ -2005,7 +2037,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=lightsource_t_md:*"
           },
@@ -2032,7 +2064,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=geo\\:lat_d_md:*"
           },
@@ -2059,7 +2091,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=geo\\:long_d_md:*"
           },
@@ -2086,7 +2118,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
+            "query": "q=*%3A*&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0\n",
             "basic_query": "",
             "custom": "&fq=location_latlons:*"
           },
@@ -2106,7 +2138,7 @@
       ]
     },
     {
-      "title": "Table",
+      "title": "GEO_LATLON",
       "height": "350px",
       "editable": true,
       "collapse": false,
@@ -2122,7 +2154,7 @@
             "ids": [
               0
             ],
-            "query": "q=id%3Afile%5C%3A%5C%2Fdata2%5C%2FUSC*&wt=json&rows=100&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&sort=indexedAt desc",
+            "query": "q=*%3A*&wt=json&rows=100&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&sort=indexedAt desc",
             "custom": "&fq=location_latlons:*"
           },
           "size": 100,
@@ -2136,14 +2168,6 @@
           "title": "location_latlons"
         }
       ]
-    },
-    {
-      "title": "GEO_LATLON",
-      "height": "300px",
-      "editable": true,
-      "collapse": false,
-      "collapsable": true,
-      "panels": []
     }
   ],
   "editable": true,
