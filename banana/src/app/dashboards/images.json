@@ -34,8 +34,8 @@
           "to": "NOW/DAY%2B1DAY",
           "field": "indexedAt",
           "type": "time",
-          "fromDateObj": "2015-12-12T18:08:18.693Z",
-          "toDateObj": "2016-01-11T18:08:18.693Z",
+          "fromDateObj": "2015-12-14T16:40:48.730Z",
+          "toDateObj": "2016-01-13T16:40:48.731Z",
           "mandate": "must",
           "active": true,
           "alias": "",
@@ -2154,10 +2154,10 @@
             "ids": [
               0
             ],
-            "query": "q=*%3A*&wt=json&rows=100&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&sort=indexedAt desc",
-            "custom": "&fq=location_latlons:*"
+            "query": "q=*%3A*&wt=json&rows=10000&fq=indexedAt:[NOW/DAY-30DAY%20TO%20NOW/DAY%2B1DAY]&sort=indexedAt desc",
+            "custom": "&fq=location_latlons:*&fl=id,location_latlons"
           },
-          "size": 100,
+          "size": 10000,
           "spyable": true,
           "lat_start": "",
           "lat_end": "",
@@ -2199,6 +2199,8 @@
     "core_name": "imagecatdev",
     "core_list": [
       "572studentsmerged",
+      "dhsimagecatdev",
+      "dhsnewimagecatdev",
       "imagecat",
       "imagecatdev",
       "imagecatoodt"
