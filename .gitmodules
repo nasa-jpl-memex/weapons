@@ -1,0 +1,3 @@
+[submodule "imagespace"]
+	path = imagespace
+	url = git@github.com:memex-explorer/image_space.git
