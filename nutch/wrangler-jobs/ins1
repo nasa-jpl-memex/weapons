@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Simple SLURM script for submitting multiple serial
+# jobs (e.g. parametric studies) using a script wrapper
+# to launch the jobs.
+#
+# To use, build the launcher executable and your
+# serial application(s) and place them in your WORKDIR
+# directory.  Then, edit the CONTROL_FILE to specify 
+# each executable per process.
+#-------------------------------------------------------
+#-------------------------------------------------------
+# 
+#------------------Scheduler Options--------------------
+#SBATCH -J NUTCH_INS1          # Job name
+#SBATCH -N 1                   # Total number of nodes (16 cores/node)
+#SBATCH -n 2                  # Total number of tasks
+#SBATCH -p hadoop          # Queue name
+#SBATCH -o NUTCH_INS1_.o%j      # Name of stdout output file (%j expands to jobid)
+#SBATCH -t 48:00:00            # Run time (hh:mm:ss)
+#SBATCH -A TG-ASC150021		# Project to run on (write only if you have multiple projects)
+#SBATCH --reservation=hadoop+TG-ASC150021+1127  # Reservation Name
+#------------------------------------------------------
+#
+# Usage:
+#	#$ -pe <parallel environment> <number of slots> 
+#	#$ -l h_rt=hours:minutes:seconds to specify run time limit
+# 	#$ -N <job name>
+# 	#$ -q <queue name>
+# 	#$ -o <job output file>
+#	   NOTE: The env variable $JOB_ID contains the job id. 
+#
+#------------------------------------------------------
+
+module load jdk64; export NUTCH_HOME=/work/03755/tg830544/wrangler/memex/nutch/ins1/runtime/deploy; sleep 5;
+date; ${NUTCH_HOME}/bin/crawl seedlist crawl_ins1 1; date;
