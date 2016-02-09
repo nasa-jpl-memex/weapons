@@ -168,7 +168,7 @@
 
 <property>
   <name>http.redirect.max</name>
-  <value>0</value><!-- 0 -->
+  <value>2</value><!-- 0 -->
   <description>The maximum number of redirects the fetcher will follow when
   trying to fetch a page. If set to negative or 0, fetcher won't immediately
   follow redirected URLs, instead it will record them for later fetching.
