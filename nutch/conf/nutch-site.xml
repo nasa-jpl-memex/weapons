@@ -22,23 +22,11 @@
 
 <configuration>
 
-<!-- file properties -->
-
-<property>
-  <name>file.content.limit</name>
-  <value>900000</value><!-- 10000 -->
-  <description>The length limit for downloaded content using the file://
-  protocol, in bytes. If this value is nonnegative (>=0), content longer
-  than it will be truncated; otherwise, no truncation at all. Do not
-  confuse this setting with the http.content.limit setting.
-  </description>
-</property>
-
 <!-- HTTP properties -->
 
 <property>
   <name>http.agent.name</name>
-  <value>memex_bot_1</value>
+  <value>Mozilla/5.0</value>
   <description>HTTP 'User-Agent' request header. MUST NOT be empty - 
   please set this to a single word uniquely related to your organization.
 
@@ -61,33 +49,6 @@
   <description>Comma separated list of hostnames or IP addresses to ignore 
   robot rules parsing for. Use with care and only if you are explicitly
   allowed by the site owner to ignore the site's robots.txt!
-  </description>
-</property>
-
-<property>
-  <name>http.agent.description</name>
-  <value>MEMEX Crawler</value>
-  <description>Further description of our bot- this text is used in
-  the User-Agent header.  It appears in parenthesis after the agent name.
-  </description>
-</property>
-
-<property>
-  <name>http.agent.url</name>
-  <value>http://memex.jpl.nasa.gov</value>
-  <description>A URL to advertise in the User-Agent header.  This will 
-   appear in parenthesis after the agent name. Custom dictates that this
-   should be a URL of a page explaining the purpose and behavior of this
-   crawler.
-  </description>
-</property>
-
-<property>
-  <name>http.agent.email</name>
-  <value>memex-jpl@googlegroups.com</value>
-  <description>An email address to advertise in the HTTP 'From' request
-   header and User-Agent header. A good practice is to mangle this
-   address (e.g. 'info at example dot com') to avoid spamming.
   </description>
 </property>
 
@@ -119,21 +80,6 @@
 </property>
 
 <property>
-  <name>http.agent.host</name>
-  <value>JPL</value>
-  <description>Name or IP address of the host on which the Nutch crawler
-  would be running. Currently this is used by 'protocol-httpclient'
-  plugin.
-  </description>
-</property>
-
-<property>
-  <name>http.timeout</name>
-  <value>10000</value>
-  <description>The default network timeout, in milliseconds.</description>
-</property>
-
-<property>
   <name>http.max.delays</name>
   <value>10</value> <!-- Changed from 25 -->
   <description>The number of times a thread will delay when trying to
@@ -144,19 +90,11 @@
 
 <property>
   <name>http.content.limit</name>
-  <value>900000</value><!-- 10000 -->
+  <value>-1</value>
   <description>The length limit for downloaded content using the http://
   protocol, in bytes. If this value is nonnegative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the file.content.limit setting.
-  </description>
-</property>
-
-<property>
-  <name>http.auth.file</name>
-  <value>httpclient-auth.xml</value>
-  <description>Authentication configuration file for
-  'protocol-httpclient' plugin.
   </description>
 </property>
 
@@ -168,7 +106,7 @@
 
 <property>
   <name>http.redirect.max</name>
-  <value>2</value><!-- 0 -->
+  <value>3</value>
   <description>The maximum number of redirects the fetcher will follow when
   trying to fetch a page. If set to negative or 0, fetcher won't immediately
   follow redirected URLs, instead it will record them for later fetching.
@@ -190,10 +128,20 @@
 
 <property>
   <name>db.preserve.backup</name>
-  <value>false</value>
+  <value>true</value>
   <description>If true, updatedb will keep a backup of the previous CrawlDB
   version in the old directory. In case of disaster, one can rename old to 
   current and restore the CrawlDB to its previous state.
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.class</name>
+  <value>org.apache.nutch.crawl.AdaptiveFetchSchedule</value>
+  <description>The implementation of fetch schedule. DefaultFetchSchedule simply
+  adds the original fetchInterval to the last fetch time, regardless of
+  page changes, whereas AdaptiveFetchSchedule (see below) tries to adapt
+  to the rate at which a given page is changed. 
   </description>
 </property>
 
@@ -221,7 +169,7 @@
 
  <property>
   <name>db.injector.overwrite</name>
-  <value>false</value> <!-- Changed from true -->
+  <value>true</value>
   <description>Whether existing records in the CrawlDB will be overwritten
   by injected records.
   </description>
@@ -332,7 +280,7 @@
 
 <property>
   <name>fetcher.timelimit.mins</name>
-  <value>-1</value>
+  <value>80</value>
   <description>This is the number of minutes allocated to the fetching.
   Once this value is reached, any remaining entry from the input URL list is skipped 
   and all active queues are emptied. The default value of -1 deactivates the time limit.
@@ -341,7 +289,7 @@
 
 <property>
   <name>fetcher.max.exceptions.per.queue</name>
-  <value>3</value><!-- -1 -->
+  <value>-1</value><!-- -1 -->
   <description>The maximum number of protocol-level exceptions (e.g. timeouts) per
   host (or IP) queue. Once this value is reached, any remaining entries from this
   queue are purged, effectively stopping the fetching from this host/IP. The default
@@ -367,63 +315,6 @@
   </description>
 </property>
 
-<!-- moreindexingfilter plugin properties -->
-
-<property>
-  <name>moreIndexingFilter.mapMimeTypes</name>
-  <value>true</value>
-  <description>Determines whether MIME-type mapping is enabled. It takes a
-  plain text file with mapped MIME-types. With it the user can map both
-  application/xhtml+xml and text/html to the same target MIME-type so it
-  can be treated equally in an index. See conf/contenttype-mapping.txt.
-  </description>
-</property>
-
-<!-- AnchorIndexing filter plugin properties -->
-
-<property>
-  <name>anchorIndexingFilter.deduplicate</name>
-  <value>true</value>
-  <description>With this enabled the indexer will case-insensitive deduplicate anchors
-  before indexing. This prevents possible hundreds or thousands of identical anchors for
-  a given page to be indexed but will affect the search scoring (i.e. tf=1.0f).
-  </description>
-</property>
-
-<!-- indexingfilter plugin properties -->
-
-
-<!-- URL normalizer properties -->
-
-<property>
-  <name>urlnormalizer.loop.count</name>
-  <value>2</value><!-- 1 -->
-  <description>Optionally loop through normalizers several times, to make
-  sure that all transformations have been performed.
-  </description>
-</property>
-
-<!-- mime properties -->
-
-<!-- plugin properties -->
-
-<property>
-  <name>plugin.folders</name>
-  <value>plugins</value>
-  <description>Directories where nutch plugins are located.  Each
-  element may be a relative or absolute path.  If absolute, it is used
-  as is.  If relative, it is searched for on the classpath.</description>
-</property>
-
-<property>
-  <name>plugin.auto-activation</name>
-  <value>true</value>
-  <description>Defines if some plugins that are not activated regarding
-  the plugin.includes and plugin.excludes properties must be automaticaly
-  activated if they are needed by some actived plugins.
-  </description>
-</property>
-
 <property>
   <name>plugin.includes</name>
   <value>protocol-http|protocol-httpclient|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|indexer-solr|scoring-similarity|urlnormalizer-(pass|regex|basic)</value>
@@ -437,36 +328,7 @@
   </description>
 </property>
 
-<property>
-  <name>plugin.excludes</name>
-  <value></value>
-  <description>Regular expression naming plugin directory names to exclude.  
-  </description>
-</property>
-
-<property>
-  <name>urlmeta.tags</name>
-  <value>description</value><!-- -->
-  <description>
-    To be used in conjunction with features introduced in NUTCH-655, which allows
-    for custom metatags to be injected alongside your crawl URLs. Specifying those
-    custom tags here will allow for their propagation into a pages outlinks, as
-    well as allow for them to be included as part of an index.
-    Values should be comma-delimited. ("tag1,tag2,tag3") Do not pad the tags with
-    white-space at their boundaries, if you are using anything earlier than Hadoop-0.21. 
-  </description>
-</property>
-
 <!-- parser properties -->
-
-<property>
-  <name>parser.html.form.use_action</name>
-  <value>false</value>
-  <description>If true, HTML parser will collect URLs from form action
-  attributes. This may lead to undesirable behavior (submitting empty
-  forms during next fetch cycle). If false, form action attribute will
-  be ignored.</description>
-</property>
 
 <property>
   <name>parser.html.outlinks.ignore_tags</name>
@@ -477,52 +339,6 @@
   won't be taken. Default is empty list. Probably reasonable value
   for most people would be "img,script,link".</description>
 </property>
-
-<property>
-  <name>parsefilter.naivebayes.wordlist</name>
-  <value>naivebayes-wordlist.txt</value>
-  <description>Put the name of the file you want to be used as a list of 
-  important words to be matched in the url for the model filter. The format should be one word per line.
-  </description>
-</property>
-
-<property>
-  <name>parser.timeout</name>
-  <value>30</value>
-  <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and 
-  moves on the the following documents. This parameter is applied to any Parser implementation. 
-  Set to -1 to deactivate, bearing in mind that this could cause
-  the parsing to crash because of a very long or corrupted document.
-  </description>
-</property>
-
-<property>
-  <name>parse.filter.urls</name>
-  <value>true</value>
-  <description>Whether the parser will filter URLs (with the configured URL filters).</description>
-</property>
-
-<property>
-  <name>parse.normalize.urls</name>
-  <value>true</value>
-  <description>Whether the parser will normalize URLs (with the configured URL normalizers).</description>
-</property>
-
-<property>
-  <name>parser.skip.truncated</name>
-  <value>true</value>
-  <description>Boolean value for whether we should skip parsing for truncated documents. By default this 
-  property is activated due to extremely high levels of CPU which parsing can sometimes take.  
-  </description>
-</property>
-
-<!-- urlfilter plugin properties -->
-
-<!-- scoring filters properties -->
-
-<!-- language-identifier plugin properties -->
-
-<!-- index-static plugin properties -->
 
 
 <!-- index-metadata plugin properties -->
@@ -554,24 +370,6 @@
   </description>
 </property>
 
-<!-- index-geoip plugin properties -->
-<property>
-  <name>index.replace.regexp</name>
-  <value/>
-  <description>Allows indexing-time regexp replace manipulation of metadata fields.
-    The format of the property is a list of regexp replacements, one line per field being
-    modified.  Include index-replace in your plugin.includes.
-
-    Example:
-        hostmatch=.*somedomain.com
-        fldname1=/regexp/replacement/flags
-        fldname2=/regexp/replacement/flags
-
-    Field names would be one of those from https://wiki.apache.org/nutch/IndexStructure.
-    See https://wiki.apache.org/nutch/IndexReplace for further details.
-  </description>
-</property>
-
 <!-- parse-metatags plugin properties -->
 <property>
   <name>metatags.names</name>
@@ -584,51 +382,11 @@
   </description>
 </property>
 
-<!-- Temporary Hadoop 0.17.x workaround. -->
-
-<!-- linkrank scoring properties -->
-
-<property>
-  <name>link.ignore.internal.host</name>
-  <value>false</value>
-  <description>Ignore outlinks to the same hostname.</description>
-</property>
-
-<property>
-  <name>link.ignore.internal.domain</name>
-  <value>false</value>
-  <description>Ignore outlinks to the same domain.</description>
-</property>
-
-<property>
-  <name>link.ignore.limit.page</name>
-  <value>false</value>
-  <description>Limit to only a single outlink to the same page.</description>
-</property>
-
-<property>
-  <name>link.ignore.limit.domain</name>
-  <value>flase</value>
-  <description>Limit to only a single outlink to the same domain.</description>
-</property> 
-
-<!-- solr index properties -->
-
-<!-- Elasticsearch properties -->
-
-<!-- subcollection properties -->
-
-<!-- Headings plugin properties -->
-
 <property>
   <name>headings</name>
   <value>h1,h2,h3,h4</value>
   <description>Comma separated list of headings to retrieve from the document</description>
 </property>
-
-<!-- mimetype-filter plugin properties -->
-
-<!-- protocol-selenium plugin properties -->
 
 <property>
   <name>selenium.driver</name>
@@ -707,17 +465,6 @@
  </description>
 </property>
 
-<!-- lib-selenium configuration -->
-<property>
-  <name>libselenium.page.load.delay</name>
-  <value>3</value>
-  <description>
-    The delay in seconds to use when loading a page with lib-selenium. This
-    setting is used by protocol-selenium and protocol-interactiveselenium
-    since they depending on lib-selenium for fetching.
-  </description>
-</property>
-
 <!-- protocol-interactiveselenium configuration -->
 <property>
   <name>interactiveselenium.handlers</name>
@@ -726,24 +473,6 @@
     A comma separated list of Selenium handlers that should be run for a given
     URL. The DefaultHandler causes the same functionality as protocol-selenium.
     Custom handlers can be implemented in the plugin package and included here.
-  </description>
-</property>
-
-<property>
-  <name>store.http.request</name>
-  <value>false</value>
-  <description>
-    Store the raw request made by Nutch, required to use the CommonCrawlDataDumper
-    tool for the WARC format.
-  </description>
-</property>
-
-<property>
-  <name>store.http.headers</name>
-  <value>false</value>
-  <description>
-    Store the raw headers received by Nutch from the server, required to use the 
-    CommonCrawlDataDumper tool for the WARC format.
   </description>
 </property>
 
@@ -763,18 +492,8 @@
 </property>
 
 <property>
-        <name>scoring.similarity.stopword.file</name>
-        <value>stopwords.txt</value>
-</property>
-
-<property>
-  <name>db.ignore.external.links</name>
-  <value>false</value>
-  <description>If true, outlinks leading from a page to external hosts or domain
-  will be ignored. This is an effective way to limit the crawl to include
-  only initially injected hosts, without creating complex URLFilters.
-  See 'db.ignore.external.links.mode'.
-  </description>
+  <name>scoring.similarity.stopword.file</name>
+  <value>stopwords.txt</value>
 </property>
 
 </configuration>
