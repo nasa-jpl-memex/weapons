@@ -121,6 +121,12 @@
   </description>
 </property>
 
+<property>
+  <name>http.timeout</name>
+  <value>60000</value> <!-- Changed from 10000 -->
+  <description>The default network timeout, in milliseconds.</description>
+</property>
+
 <!-- FTP properties -->
 
 <!-- web db properties -->
