@@ -487,7 +487,7 @@
 </property>
 
 <property>
-	<name>scoring.similarity.model.path</name>
+	<name>cosine.goldstandard.file</name>
 	<value>goldstandard.txt</value>
 </property>
 
