@@ -48,14 +48,10 @@ def mover(inCSV, outCSV, dumpPath):
                 finalDumpPath = dumpPath.rstrip("/") + "/" + "/".join(reversed(domain.split("."))) 
                 if not os.path.exists(finalDumpPath):                    
                     os.makedirs(finalDumpPath)
-                                    
                 shutil.move(new_filename, finalDumpPath + "/" + hashedAdURL)                
                 record.append(finalDumpPath + "/" + hashedAdURL)
 
-                #pending files to be indexed using parser-indexer => feed darkDumpPoster the CSV file generated
-
                 writer.writerow(record)
-
 
 if __name__ == "__main__":
 
