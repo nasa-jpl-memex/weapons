@@ -16,16 +16,30 @@
 # limitations under the License.
 #
 #
-yesterday=$(date -d 'yesterday' '+%Y-%m-%d')
-outfile=$yesterday"weap.out"
+for i in {1..7}
+do
+  past_day=$(date -d "-$i day" '+%Y-%m-%d')
+  echo "Fetching & Ingesting for $past_day"
+  outfile=$past_day"weap.out"
 
-#cd path/to/dark/scripts
-cd ~/darkWeapons/dark_Cron_production
-python es_allSearch.py wea.txt outFiles/$outfile weapDir 2000000 _type $yesterday
+  #cd path/to/dark/script
+  cd ~/darkWeapons/dark_Cron_production
+  source dark.env
+  python es_allSearch.py wea.txt outFiles/$outfile weapDir 2000000 _type $past_day
 
-updates=$yesterday"Updates.csv"
-python refactoredMover.py --inCSV outFiles/$outfile --outCSV updates/$updates --dumpPath /data2/USCWeaponsStatsGathering/nutch/full_dump
+  updates=$past_day"Updates.csv"
+  python refactoredMover.py --inCSV outFiles/$outfile --outCSV updates/$updates --dumpPath /data2/USCWeaponsStatsGathering/nutch/full_dump
 
-cd ~/imagecat/tmp/parser-indexer
-java -cp target/nutch-tika-solr-1.0-SNAPSHOT.jar edu.usc.cs.ir.cwork.files.DarkDumpPoster -nutch ~/darkWeapons/dark_Cron_production/nutch/runtime/local -solr http://localhost:8983/solr/imagecatdev -timeout 70000 -list ~/darkWeapons/dark_Cron_production/updates/$updates
+  lineCtStr=$(wc -l updates/$updates)
+  lineCt=($lineCtStr)  
+  if [ $lineCt -eq 1 ]
+  then
+    echo "Skipping Empty file"  
+    continue
+  fi
+
+  source ~/jdk8.sh
+  cd ~/imagecat/tmp/parser-indexer
+  java -cp target/nutch-tika-solr-1.0-SNAPSHOT.jar edu.usc.cs.ir.cwork.files.DarkDumpPoster -nutch ~/darkWeapons/dark_Cron_production/nutch/runtime/local -solr http://localhost:8983/solr/imagecatdev -timeout 70000 -list ~/darkWeapons/dark_Cron_production/updates/$updates
+done
 echo "JOB COMPLETE"
