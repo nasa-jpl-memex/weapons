@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Authors: Karanjeet Singh
-#          Harshavardhan Manjunatha
+#         Harshavardhan Manjunatha
 is_good_to_transfer(){
 	for server in `squeue | grep -i NUTCH | awk '{print $8}'`
 	do
@@ -18,6 +18,7 @@ main(){
 main;
 
 # Dump Segments
+# Ensure Dependency Bash Scripts are enabled
 ssh mdeploy@imagecat.dyndns.org
 cd /data2/USCWeaponsStatsGathering/nutch
 find /usr/local/memex/wrangler_crawl/production -type d -name "segments" > current_scp_wrangler_segments.txt
