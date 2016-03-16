@@ -31,23 +31,3 @@ main(){
 }
 
 main;
-
-# Dump Segments
-# Ensure Dependency Bash Scripts are enabled
-ssh mdeploy@imagecat.dyndns.org
-cd /data2/USCWeaponsStatsGathering/nutch
-find /usr/local/memex/wrangler_crawl/production -type d -name "segments" > current_scp_wrangler_segments.txt
-./wrangler_batch_dump.sh current_scp_wrangler_segments.txt
-mv /usr/local/memex/wrangler_crawl/production/* /usr/local/memex/wrangler_crawl/archive/
-
-# Find delta updates/docIDs of fileDumper
-cd runtime/local/logs
-today=$(date +"%m-%d-%y")
-updates=$today"DocIDs.txt"
-cat hadoop.log | grep Writing | cut -d" " -f 8 | cut -d"[" -f 2 | cut -d"]" -f 1 > /usr/local/memex/wrangler_crawl/deltaUpdates/$updates
-
-# Fire off parser-indexer
-source ~/jdk8.sh
-cd ~/imagecat/tmp/parser-indexer
-java -jar parser-indexer/target/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list /usr/local/memex/wrangler_crawl/deltaUpdates/$updates -solr http://localhost:8983/solr/imagecatdev -timeout 70000
-echo "JOB COMPLETE"
