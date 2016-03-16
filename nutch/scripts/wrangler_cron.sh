@@ -39,8 +39,7 @@ split -l 300000 $updates partFiles/parts
 # Fire off parser-indexer
 source /usr/local/memex/jdk8.sh
 # Choose relevant timeout value for Tika Parsers default 1 min
-ls partFiles/ | while read i; do  echo "sleep 5; echo $i; nohup java -jar /usr/local/memex/imagecat/tmp/parser-indexer/target/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list partFiles/$i -threads 1 -solr http://127.0.0.1:8983/solr/imagecatdev -batch 500 -timeout 60000
-0 > outs/nohup-$i.out & " ; done > cmd.txt
+ls partFiles/ | while read i; do  echo "sleep 5; echo $i; nohup java -jar /usr/local/memex/imagecat/tmp/parser-indexer/target/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list partFiles/$i -threads 1 -solr http://127.0.0.1:8983/solr/imagecatdev -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
 
 cat cmd.txt | bash
 echo "JOB COMPLETE"
