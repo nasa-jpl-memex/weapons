@@ -113,6 +113,7 @@ if (!Array.prototype.indexOf) {
 }
 
 /* EXPLAINING THE FACETVIEW OPTIONS
+
 Facetview options can be set on instantiation. The list below details which options are available.
 
 Options can also be set and retrieved externally via $.fn.facetview.options.
@@ -121,11 +122,9 @@ Query values can also be read from the query parameters of the current page, or 
 the "source" option for initial search.
 
 Also, whilst facetview is executing a query, it will "show" any element with the "notify-loading" class.
-
 So that class can be applied to any element on a page that can be used to signify loading is taking place.
 
 Once facetview has executed a query, the querystring used is available under "options.querystring".
-
 And the result object as retrieved directly from the index is available under "options.rawdata".
 
 searchbox_class
@@ -269,7 +268,6 @@ JSON document describing an `elasticsearch filter <http://www.elasticsearch.org/
 
 paging
 ------
-
 An object defining the paging settings:
 
     from
@@ -295,13 +293,13 @@ featured content, for example.
 sort
 ----
 A list of objects defining how to sort the results, as per elasticsearch sorting.
-searchwrap_start
 
+searchwrap_start
 searchwrap_end
 ----------------
 HTML values in which to wrap the full result set, to style them into the page they are being injected into.
-resultwrap_start
 
+resultwrap_start
 resultwrap_end
 ----------------
 HTML values in which to wrap each result object
@@ -339,6 +337,7 @@ to each string in the freetext search term, and if it is ~ then ~ will be append
 search term. If * or ~ or : are already in the freetext search term, it will be assumed the user is already trying 
 to do a complex search term so no action will be taken. NOTE these changes are not replicated into the freetext 
 search box - the end user will not know they are happening.
+
 */
 
 
@@ -420,16 +419,6 @@ search box - the end user will not know they are happening.
             "sharesave_link": true,
             "description":"",
             "facets":[],
-            "default_url_params":{
-            'facet.mincount':1,
-            'wt':'json',
-            'indent':'true'
-            },
-            "solr_paging_params":{
-                "from":"start",
-                "size":"rows"
-            },
-            "query_parameter":"q",
             "extra_facets": {},
             "enable_rangeselect": false,
             "include_facets_in_querystring": false,
@@ -636,7 +625,7 @@ search box - the end user will not know they are happening.
                 var filters = options.facets;
                 var thefilters = '';
                 for ( var idx = 0; idx < filters.length; idx++ ) {
-                    var _filterTmpl = '<table id="facetview_{{FILTER_NAME}}" class="facetview_filters table table-bordered table-condensed table-striped"> \
+                    var _filterTmpl = '<table id="facetview_{{FILTER_NAME}}" class="facetview_filters table table-bordered table-condensed table-striped" style="display:none;"> \
                         <tr><td><a class="facetview_filtershow" title="filter by {{FILTER_DISPLAY}}" rel="{{FILTER_NAME}}" \
                         style="color:#333; font-weight:bold;" href=""><i class="icon-plus"></i> {{FILTER_DISPLAY}} \
                         </a> \
@@ -654,6 +643,11 @@ search box - the end user will not know they are happening.
                         </table>';
                     _filterTmpl = _filterTmpl.replace(/{{FILTER_NAME}}/g, filters[idx]['field'].replace(/\./gi,'_').replace(/\:/gi,'_')).replace(/{{FILTER_EXACT}}/g, filters[idx]['field']);
                     thefilters += _filterTmpl;
+                    // HACK
+                    if (filters[idx].field == "authors") {
+                        filters[idx]['size'] = 10;
+                    }
+                    //----------
                     if ('size' in filters[idx] ) {
                         thefilters = thefilters.replace(/{{FILTER_HOWMANY}}/gi, filters[idx]['size']);
                     } else {
@@ -745,14 +739,7 @@ search box - the end user will not know they are happening.
             }
             dosearch();
         };
-
-        var clearquery = function(event) {
-            event.preventDefault();
-            $('.facetview_freetext').val("");
-            options.paging.from = 0;
-            dosearch();
-        };
-
+        
         // ===============================================
         // functions to do with building results
         // ===============================================
@@ -765,47 +752,27 @@ search box - the end user will not know they are happening.
             resultobj["start"] = "";
             resultobj["found"] = "";
             resultobj["facets"] = new Object();
-            if (options.search_index == "elasticsearch"){
-                for ( var item = 0; item < dataobj.hits.hits.length; item++ ) {
-                    if ( options.fields ) {
-                        resultobj["records"].push(dataobj.hits.hits[item].fields);
-                    } else if ( options.partial_fields ) {
-                        var keys = [];
-                        for(var key in options.partial_fields){
-                            keys.push(key);
-                        }
-                        resultobj["records"].push(dataobj.hits.hits[item].fields[keys[0]]);
-                    } else {
-                        resultobj["records"].push(dataobj.hits.hits[item]._source);
+            for ( var item = 0; item < dataobj.hits.hits.length; item++ ) {
+                if ( options.fields ) {
+                    resultobj["records"].push(dataobj.hits.hits[item].fields);
+                } else if ( options.partial_fields ) {
+                    var keys = [];
+                    for(var key in options.partial_fields){
+                        keys.push(key);
                     }
-                }
-                resultobj["start"] = "";
-                resultobj["found"] = dataobj.hits.total;
-                for (var item in dataobj.facets) {
-                    var facetsobj = new Object();
-                    for (var thing = 0; thing < dataobj.facets[item]["terms"].length; thing++) {
-                        facetsobj[ dataobj.facets[item]["terms"][thing]["term"] ] = dataobj.facets[item]["terms"][thing]["count"];
-                    }
-                    resultobj["facets"][item] = facetsobj;
+                    resultobj["records"].push(dataobj.hits.hits[item].fields[keys[0]]);
+                } else {
+                    resultobj["records"].push(dataobj.hits.hits[item]._source);
                 }
             }
-            else{
-                resultobj["records"] = dataobj.response.docs;
-                resultobj["start"] = dataobj.response.start;
-                resultobj["found"] = dataobj.response.numFound;
-                if (dataobj.facet_counts) {
-                    for (var item in dataobj.facet_counts.facet_fields) {
-                        var facetsobj = new Object();
-                        var count = 0;
-                        for ( var each in dataobj.facet_counts.facet_fields[item]) {
-                            if ( count % 2 == 0 ) {
-                            facetsobj[ dataobj.facet_counts.facet_fields[item][each] ] = dataobj.facet_counts.facet_fields[item][count + 1];
-                            }
-                            count += 1;
-                        }
-                        resultobj["facets"][item] = facetsobj;
-                    }
+            resultobj["start"] = "";
+            resultobj["found"] = dataobj.hits.total;
+            for (var item in dataobj.facets) {
+                var facetsobj = new Object();
+                for (var thing = 0; thing < dataobj.facets[item]["terms"].length; thing++) {
+                    facetsobj[ dataobj.facets[item]["terms"][thing]["term"] ] = dataobj.facets[item]["terms"][thing]["count"];
                 }
+                resultobj["facets"][item] = facetsobj;
             }
             return resultobj;
         };
@@ -830,7 +797,6 @@ search box - the end user will not know they are happening.
 
         // used to get value by dotted notation in result_display
         var getvalue = function(obj, dotted_notation) {
-            if(!dotted_notation) return;
             var parts = dotted_notation.split('.');
             parts.reverse();
             var ref = [parts.pop()];
@@ -849,7 +815,7 @@ search box - the end user will not know they are happening.
                 if ( addressed_ob !== undefined ) {
                     var thevalue = [];
                     for ( var row = 0; row < addressed_ob.length; row++ ) {
-                        thevalue.push(addressed_ob[row]);
+                        thevalue.push(getvalue(addressed_ob[row], left));
                     }
                     return thevalue;
                 } else {
@@ -863,29 +829,14 @@ search box - the end user will not know they are happening.
             var record = options.data['records'][index];
             var result = options.resultwrap_start;
             // add first image where available
-            // TODO: this is where we need to take the URL as stored in ID field, translate it to a web URL, and show it.
-            // if (options.image_record) {
-            //     var url = record["id"].replace(options.url_from, options.url_to);
-            //     if (record["contentType"].toLowerCase() === "image/svg+xml") {
-            //         // result += '<svg width="100" height="150"><use xlink:href="' + url + '" /></svg>';
-            //         result += '<img class="thumbnail" style="float:left" width="100" height="150" src="' + url + '" />';
-            //     }
-            //     else {
-            //         result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + url + '" />';
-            //     }
-            // }
-            // else if (options.display_images) {
-            //     if (record.outlinks) {
-            //         for (var out_link_idx=0; out_link_idx < record.outlinks.length; out_link_idx++) {
-            //             var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
-            //             var img = regex.exec(record.outlinks[out_link_idx]);
-            //             if (img) {
-            //                 result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + img[0] + '" />';
-            //             }
-            //         }
-            //         result += '<br clear="all">';
-            //     }
-            // }
+            if (options.display_images) {
+                var recstr = JSON.stringify(record);
+                var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
+                var img = regex.exec(recstr);
+                if (img) {
+                    result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + img[0] + '" />';
+                }
+            }
             // add the record based on display template if available
             var display = options.result_display;
             var lines = '';
@@ -895,29 +846,14 @@ search box - the end user will not know they are happening.
                     var thekey = display[lineitem][object]['field'];
                     var thevalue = getvalue(record, thekey);
                     if (thevalue && thevalue.toString().length) {
-                        if (display[lineitem][object]['pre']) {
-                            line += display[lineitem][object]['pre'];
-                        };
+                        display[lineitem][object]['pre']
+                            ? line += display[lineitem][object]['pre'] : false;
                         if ( typeof(thevalue) == 'object' ) {
-                            var limit = options.object_limit ? options.object_limit : thevalue.length;
-                            if (limit >= thevalue.length) {
-                                limit = thevalue.length;
-                            };
-                            for ( var val = 0; val < limit; val++ ) {
-                                if (val != 0) {
-                                    line += ', ';
-                                };
+                            for ( var val = 0; val < thevalue.length; val++ ) {
+                                val != 0 ? line += ', ' : false;
                                 line += thevalue[val];
                             }
-                            if (limit < thevalue.length) {
-                                line += "...";
-                            }
                         } else {
-                            if (options.text_limit) {
-                                thevalue = thevalue.length > options.text_limit ?
-                                    thevalue.substring(0, options.text_limit - 3) + "..." :
-                                    thevalue.substring(0, options.text_limit);
-                            }
                             line += thevalue;
                         }
                         display[lineitem][object]['post'] 
@@ -929,74 +865,7 @@ search box - the end user will not know they are happening.
                 }
             }
             lines ? result += lines : result += JSON.stringify(record,"","    ");
-            
-
-            // Image Scroller
-            //-----------------
-            if (options.display_images && record.outlinks) {
-                var image_links = [];
-                for (var out_link_idx=0; out_link_idx < record.outlinks.length; out_link_idx++) {
-                    var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
-                    var img = regex.exec(record.outlinks[out_link_idx]);
-                    if(img){
-                        image_links.push(img[0]);
-                    }
-                }
-                var scroll_windows;
-                if (image_links.length % 4 == 0){
-                    scroll_windows = image_links.length  / 4;
-                }
-                else{
-                    scroll_windows = Math.floor(image_links.length  / 4) + 1;
-                }
-
-                if(scroll_windows > 0){
-                    result += '\
-                    <div class="btn-group" style="margin-bottom: 10px;">\
-                        <center>\
-                            <a id="showimages_button' + index + '" class="btn dropdown-toggle btn-large" data-toggle="dropdown" href="#" style="display: inline-block; text-align: center; float: none; width: 30%;">\
-                                Show/Hide Images\
-                            <span class="caret"></span>\
-                            </a>\
-                        </center>\
-                    </div>\
-                    <div id="carousel' + index + '" class="carousel slide" data-ride="carousel" style="display: none;">\
-                        <div class="carousel-inner" role="listbox">\
-                            <div class="item active" style="margin-left: 100px;">'
-                                for (var x=0; x < 4; x++) {
-                                    if(image_links[x]){
-                                        result += '<img class="scrollthumb" src="' + image_links[x] + '">';
-                                    }
-                                }
-                            result += '\
-                            </div>'
-                                for (var x=2; x <= scroll_windows; x++){
-                                    result += '<div class="item" style="margin-left: 100px;">'
-                                    for (var j=0; j < image_links.length; j++) {
-                                        if (j >= (x-1)*4 && j < x*4 && image_links[j]) {
-                                            result += '<img class="scrollthumb" src="' + image_links[j] + '">';
-                                        }
-                                    }
-                                    result += '</div>'
-                                }
-                            result += '</div>'
-                        if(scroll_windows > 1){
-                            result += '\
-                            <a class="left carousel-control" href="#carousel' + index + '" role="button" data-slide="prev" style="vertical-align: middle;">\
-                                <i class="icon-chevron-left icon-white" aria-hidden="true" style="margin: auto; top:0; bottom:0; left:0; right:0; position: absolute; -webkit-transform:scale(1.3)"> </i>\
-                            </a>\
-                            <a class="right carousel-control" href="#carousel' + index + '" role="button" data-slide="next" style="vertical-align: middle;">\
-                                <i class="icon-chevron-right icon-white" aria-hidden="true" style="margin: auto; top:0; bottom:0; left:0; right:0; position: absolute; -webkit-transform:scale(1.3)"> </i>\
-                            </a>'
-                        }
-                        result += '</div>'
-                }
-            }
-
-            
             result += options.resultwrap_end;
-
-
             return result;
         };
 
@@ -1036,27 +905,48 @@ search box - the end user will not know they are happening.
                 facet_filter.children().find('.facetview_filtervalue').remove();
                 var records = data["facets"][ facet ];
 
-                // compensate for Solr not being able to show facet results in reverse order
-                if ("order" in options.facets[each] && options.facets[each]["order"].indexOf("reverse") > -1) {
-                    // http://stackoverflow.com/questions/18977881/can-i-loop-through-a-javascript-object-in-reverse-order 
-                    function ReverseObject(Obj){
-                        var TempArr = [];
-                        var NewObj = {};
-                        for (var Key in Obj){
-                            TempArr.push(Key);
-                        }
-                        for (var i = TempArr.length-1; i >= 0; i--){
-                            NewObj[TempArr[i]] = Obj[TempArr[i]];
-                        }
-                        return NewObj;
-                    };
-                    records = ReverseObject(records);
-                }
-
         var years = ['year'];
-                var year_hits = ['hits'];
+        var year_hits = ['hits'];
         var lineChartFacet = false;
         var dendrogramFacet = false;
+        // HACK
+        // console.log(data.facets.authors)
+        auths = []
+        auths_raw = Object.keys(data.facets.authors)
+        for (x in auths_raw){
+            if(auths.indexOf(auths_raw[x].split("::")[0]) == -1){
+                auths.push("\"" + auths_raw[x] + "\"")
+            }
+        }
+        var download = function(content, fileName, mimeType) {
+          var a = document.createElement('a');
+          mimeType = mimeType || 'application/octet-stream';
+
+          if (navigator.msSaveBlob) { // IE10
+            return navigator.msSaveBlob(new Blob([content], { type: mimeType }),     fileName);
+          } else if ('download' in a) { //html5 A[download]
+            a.href = 'data:' + mimeType + ',' + encodeURIComponent(content);
+            a.setAttribute('download', fileName);
+            document.body.appendChild(a);
+            setTimeout(function() {
+              a.click();
+              document.body.removeChild(a);
+            }, 66);
+            return true;
+          } else { //do iframe dataURL download (old ch+FF):
+            var f = document.createElement('iframe');
+            document.body.appendChild(f);
+            f.src = 'data:' + mimeType + ',' + encodeURIComponent(content);
+
+            setTimeout(function() {
+              document.body.removeChild(f);
+            }, 333);
+            return true;
+            }
+        }
+        // download(auths, "solid_auths.csv", 'text/csv')
+        // console.log(auths)
+        
         if (facet == options.linechart_field){
             lineChartFacet = true;
         }
@@ -1072,7 +962,7 @@ search box - the end user will not know they are happening.
             facet_filter.append(append);
 
             if (lineChartFacet){
-                years.push(item);
+                years.push(show_val);
                 year_hits.push(records[item]);
             } 
 
@@ -1128,28 +1018,27 @@ search box - the end user will not know they are happening.
                                          .append("svg:g")
                                          .attr("transform", "translate(80, 0)");
                           var facet_text = facet_selected[0].text;
-                          //alert(facet_text);
                           root = {
                               "name": facet_text,
                               "children": []
                           };
-                          //alert(data.records);
+
                           var rel_nodes = [];
                           for ( var i = 0; i < data.records.length; i++ ) {
-                                var drec = data.records[i];
-                                var drec_length = 0;
-                                var drec_facet = eval('drec.'+facet);
-                                if (drec_facet != undefined){
-                                    drec_length = drec_facet.length;
-                                }
-                                for (var j = 0; j < drec_length; j++) {
-                                    var rel_node = eval('drec.'+facet+'[j]');
-                                    if (facet_text.toLowerCase().trim() != rel_node.toLowerCase().trim() && rel_nodes.indexOf(rel_node) == -1) {
-                                        root.children.push({ "name": rel_node, "children": []});
-                                        rel_nodes.push(rel_node);
-                                        }
-                                    }
-                            }
+                              var drec = data.records[i];
+                  var drec_length = 0;
+                  var drec_facet = eval('drec.'+facet);
+                  if (drec_facet != undefined){
+                  drec_length = drec_facet.length;
+                  }
+                              for (var j = 0; j < drec_length; j++) {
+                                  var rel_node = eval('drec.'+facet+'[j]');
+                                  if (facet_text.toLowerCase().trim() != rel_node.toLowerCase().trim() && rel_nodes.indexOf(rel_node) == -1) {
+                                      root.children.push({ "name": rel_node, "children": []});
+                                      rel_nodes.push(rel_node);
+                                  }
+                              }
+                          }
 
                           var nodes = dd_cluster.nodes(root),
                               links = dd_cluster.links(nodes);
@@ -1219,7 +1108,7 @@ search box - the end user will not know they are happening.
             if (data.found) {
                 var from = options.paging.from + 1;
                 var size = options.paging.size;
-                !size ? size = 100 : "";
+                !size ? size = 10 : "";
                 var to = options.paging.from+size;
                 data.found < to ? to = data.found : "";
                 var meta = metaTmpl.replace(/{{from}}/g, from);
@@ -1235,7 +1124,6 @@ search box - the end user will not know they are happening.
             // put the filtered results on the page
             $('#facetview_results',obj).html("");
             var infofiltervals = new Array();
-
             $.each(data.records, function(index, value) {
                 // write them out to the results div
                  $('#facetview_results', obj).append( buildrecord(index) );
@@ -1254,42 +1142,6 @@ search box - the end user will not know they are happening.
             if (typeof options.post_search_callback == 'function') {
                 options.post_search_callback.call(this);
             }
-
-            //Highlight search terms and query filters
-            //---------------------------------------
-
-            //free text query val
-            var freetext_q = document.getElementById("freetext").value.replace(/"/g, '').replace("AND","").replace("OR","").replace("  "," ").split(" ");
-    
-            // build list of filter values from query string
-            var filters = options.querystring.slice(options.querystring.indexOf("active_facets={"), options.querystring.lastIndexOf("}")).replace("active_facets={","").split(/[:,]+/);
-            filter_terms = []
-            for (var x = 0; x < filters.length; x++){
-                if (x % 2 == 1){
-                    filter_terms.push(filters[x].replace(/"/g, ''));
-                }
-            }
-            highlight_terms = filter_terms.concat(freetext_q);
-
-            $("#facetview_results").highlight(highlight_terms);
-
-
-            // Show image carousel when button clicked
-            //-----------------------------------------
-            for (var x = 0; x < options.paging.size; x ++){
-                $("#showimages_button" + x).on("click", function(){
-                    var button_index = $(this)[0].id.replace("showimages_button","");
-
-                    if (document.getElementById("carousel" + button_index).style.display == "block"){
-                        document.getElementById("carousel" + button_index).style.display = "none";
-                    } else{
-                        document.getElementById("carousel" + button_index).style.display = "block";
-                    }
-                    
-                })
-            }
-            
-            
         };
 
         // ===============================================
@@ -1407,6 +1259,19 @@ search box - the end user will not know they are happening.
                     var qryval = { 'query': fuzzify(options.q) };
                     $('.facetview_searchfield', obj).val() != "" ? qryval.default_field = $('.facetview_searchfield', obj).val() : "";
                     options.default_operator !== undefined ? qryval.default_operator = options.default_operator : false;
+                    // HACK 
+                    var len = qryval['query'].split(",").length;
+                    if(qryval['query'].indexOf("tectonic") > -1){
+                        qryval['minimum_should_match'] = Math.round(len * 0.4);
+                        console.log("found tect must match " + Math.round(len * 0.4))
+                    }
+                    else{
+                        qryval['minimum_should_match'] = Math.round(len * 0.3);
+                        console.log("must match " + Math.round(len * 0.3))
+                    }
+                    
+                    
+                    // --------------
                     qs['query'] = {'query_string': qryval };
                 } else {
                     qs['query'] = {'match_all': {}};
@@ -1414,7 +1279,7 @@ search box - the end user will not know they are happening.
             };
             // set any paging
             options.paging.from != 0 ? qs['from'] = options.paging.from : "";
-            options.paging.size != 100 ? qs['size'] = options.paging.size : "";
+            options.paging.size != 10 ? qs['size'] = options.paging.size : "";
             // set any sort or fields options
             options.sort.length > 0 ? qs['sort'] = options.sort : "";
             options.fields ? qs['fields'] = options.fields : "";
@@ -1462,102 +1327,6 @@ search box - the end user will not know they are happening.
             return qy;
         };
 
-        //Solr Search
-        var solrsearchquery = function() {
-            // set default URL params
-            var solr_url_params="";
-            var facetview_history_params="";
-
-            solr_url_params += "wt=json&";
-
-            for (var item in options.default_url_params) {
-                solr_url_params += item + "=" + options.default_url_params[item] + "&";
-            }
-
-            // do paging params
-            for (var item in options.paging) {
-                solr_url_params += options.solr_paging_params[item] + "=" + options.paging[item] + "&";
-            }
-            var from = options.paging.from ? options.paging.from : 0;
-            var size = options.paging.size ? options.paging.size : 10;
-            facetview_history_params += 'paging={"from":' + from + ',"size":' + size + '}&';
-
-            facetview_history_params += 'facets=[';
-            for (var item in options.facets) {
-                facetview_history_params += '{"field":"'+options.facets[item]['field'] + '",';
-                facetview_history_params += '"display":"'+options.facets[item]['display'] + '",';
-                solr_url_params += "facet.field=" + options.facets[item]['field'] + "&";
-                var size = options.default_facet_size ? options.default_facet_size : 10;
-                if (options.facets[item]['size']) {
-                    size = options.facets[item]['size'];
-                    facetview_history_params += '"size":'+ size + ',';
-                }
-                solr_url_params += "f." + options.facets[item]['field'] + ".facet.limit=" + size + "&";
-                var sort = 'count';
-                if (options.facets[item]['order']) {
-                    facetview_history_params += '"order":"'+options.facets[item]['order'] + '",';
-                    sort = options.facets[item]['order'];
-                    if (sort === 'term' || sort === 'reverse_term') {
-                        sort = 'index';
-                    }
-                    else {
-                        sort = 'count';
-                    };
-            };
-            // clean trailing comma
-            facetview_history_params = facetview_history_params.slice(0, -1);
-            facetview_history_params += '},';
-            solr_url_params += "f." + options.facets[item]['field'] + ".facet.sort=" + sort + "&";
-        }
-
-        // clean trailing comma
-        facetview_history_params = facetview_history_params.slice(0, -1);
-        facetview_history_params += ']&';
-        solr_url_params += "facet.mincount=1&";
-
-        if ( options.facets.length > 0 ) {
-            solr_url_params += "facet=on&";
-        }
-        // add default query values
-        // build the query, starting with default values
-        var query = "";
-
-        facetview_history_params += 'active_facets={';
-        $('.facetview_filterselected',obj).each(function() {
-            query += $(this).attr('rel') + ':"' +
-            $(this).attr('href') + '" AND ';
-            facetview_history_params += '"'+$(this).attr('rel') + '":"' + $(this).attr('href')+'",';
-        });
-
-        if (facetview_history_params.slice(-1)==','){
-            facetview_history_params = facetview_history_params.slice(0, -1);
-        }
-        facetview_history_params += '}';
-
-        // add any freetext filter
-        if (options.q != "") {
-            query += options.q;
-        }
-        else {
-            query += '*';
-        }
-        query = query.replace(/ and $/,"");
-
-        solr_url_params += options.query_parameter + '=' + query;
-        if (options.image_record) {
-            solr_url_params += " AND mainType:image";
-        }
-        else {
-            solr_url_params += " AND -mainType:image";
-        }
-
-        // this part is what gets fed into the URL for history purposes.  It has JSON, not strictly URL parameters.
-        facetview_history_params += "query=" + options.q ? options.q : "";
-        options.sharesave_link ? $('.facetview_sharesaveurl', obj).val('http://' + window.location.host + window.location.pathname + '?' + facetview_history_params) : "";
-        options.querystring = facetview_history_params;
-
-        return solr_url_params;
-	};
         // execute a search
         var dosearch = function() {
             jQuery('.notify_loading').show();
@@ -1568,38 +1337,22 @@ search box - the end user will not know they are happening.
                 options.q = $(options.searchbox_class).last().val();
             };
             // make the search query
-            var qrystr = '';
-            var url_1 = options.search_url;;
-            if ( options.search_index == "elasticsearch") {
-                qrystr = elasticsearchquery();
-            } else {
-                qrystr = solrsearchquery();
-            }
-
+            var qrystr = elasticsearchquery();
             // augment the URL bar if possible
-            if ( options.pushstate || !options.nav_page) {
-                // options.querystring is different from qrystr.
-                //   It does not include facets or data type.
-                var currurl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?' + encodeURIComponent(options.querystring);
-                if (!window.history.state || currurl != window.history.state.url) {
-                    var stateObj = { url: currurl, innerhtml: document.body.innerHTML };
-                    window.history.pushState(stateObj, currurl, currurl);
-                }
+            if ( options.pushstate ) {
+                var currurl = '?source=' + options.querystring;
+                window.history.pushState("","search",currurl);
             };
-            options.nav_page = false;    // reset the flag that skips history push above, if set
             $.ajax({
                 type: "get",
-                url: url_1,
-                data: qrystr,
-                processData: false,
+                url: options.search_url,
+                data: {source: qrystr},
+                // processData: false,
                 dataType: options.datatype,
-                jsonp: "json.wrf",
-                success: showresults,
-                error: function(xhr, error){
-                    debugger;
-                }
+                success: showresults
             });
         };
+
 
         // show search help
         var learnmore = function(event) {
@@ -1652,7 +1405,7 @@ search box - the end user will not know they are happening.
         // parse any source params out for an initial search
         var parsesource = function() {
             var qrystr = options.source.query;
-            if (qrystr && 'bool' in qrystr ) {
+            if ( 'bool' in qrystr ) {
                 var qrys = [];
                 // TODO: check for nested
                 if ( 'must' in qrystr.bool ) {
@@ -1675,7 +1428,7 @@ search box - the end user will not know they are happening.
                         };
                     };
                 };
-            } else if (qrystr &&  'query_string' in qrystr ) {
+            } else if ( 'query_string' in qrystr ) {
                 typeof(qrystr.query_string.query) == 'string' ? options.q = qrystr.query_string.query : "";
             };
         }
@@ -1748,7 +1501,7 @@ search box - the end user will not know they are happening.
         thefacetview += '<div class="facetview_plots_container"><div id="line_chart"/><div id="dendrogram"/></div>';
         thefacetview += '<div class="facetview_search_options_container">';
         thefacetview += '<div class="btn-group" style="display:inline-block; margin-right:5px;"> \
-            <a class="btn btn-small facetview_clearquery" title="clear query settings and start again"><i class="icon-remove"></i></a> \
+            <a class="btn btn-small" title="clear all search settings and start again" href=""><i class="icon-remove"></i></a> \
             <a class="btn btn-small facetview_learnmore" title="click to view search help information" href="#"><b>?</b></a> \
             <a class="btn btn-small facetview_howmany" title="change result set size" href="#">{{HOW_MANY}}</a>';
         if ( options.search_sortby.length > 0 ) {
@@ -1776,7 +1529,7 @@ search box - the end user will not know they are happening.
             };
             thefacetview += '</select>';
         };
-        thefacetview += '<input type="text" tabindex="1" id="freetext" class="facetview_freetext span4" style="display:inline-block; margin:0 0 21px 0; background:' + options.searchbox_shade + ';" name="q" \
+        thefacetview += '<input type="text" class="facetview_freetext span4" style="display:inline-block; margin:0 0 21px 0; background:' + options.searchbox_shade + ';" name="q" \
             value="" placeholder="search term" />';
         if ( options.sharesave_link ) {
             thefacetview += '<a class="btn facetview_sharesave" title="share or save this search" style="margin:0 0 21px 5px;" href=""><i class="icon-share-alt"></i></a>';
@@ -1817,7 +1570,6 @@ search box - the end user will not know they are happening.
                 $('.facetview_orderby', obj).bind('change',orderby);
                 $('.facetview_order', obj).bind('click',order);
                 $('.facetview_sharesave', obj).bind('click',sharesave);
-                $('.facetview_clearquery', obj).bind('click',clearquery);
 
                 // check paging info is available
                 !options.paging.size && options.paging.size != 0 ? options.paging.size = 10 : "";
@@ -1833,19 +1585,11 @@ search box - the end user will not know they are happening.
                 if ( options.searchbox_class.length == 0 ) {
                     options.q != "" ? $('.facetview_freetext', obj).val(options.q) : "";
                     buildfilters();
-                    $('.facetview_freetext', obj).bindWithDelay('keyup',searchfield,options.freetext_submit_delay);
+                    $('.facetview_freetext', obj).bindWithDelay('keyup',dosearch,options.freetext_submit_delay);
                 } else {
                     options.q != "" ? $(options.searchbox_class).last().val(options.q) : "";
                     buildfilters();
-                    $(options.searchbox_class).bindWithDelay('keyup',searchfield,options.freetext_submit_delay);
-                }
-
-                if (options.active_facets) {
-                    for (var rel in options.active_facets) {
-                        if (options.active_facets.hasOwnProperty(rel)){
-                            clickfilterchoice(null,rel,options.active_facets[rel]);
-                        }
-                    }
+                    $(options.searchbox_class).bindWithDelay('keyup',dosearch,options.freetext_submit_delay);
                 }
 
                 options.source || options.initialsearch ? dosearch() : "";
