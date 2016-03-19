@@ -17,7 +17,7 @@
 #
 #
 
-# Modify $WRANGLER_SEGS to reflect Weekly Fresh Segments to be dumped & ingestd
+# Modify $WRANGLER_SEGS to reflect Weekly Fresh Segments to be dumped & ingested
 WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/production
 WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/archive
 NUTCH_SNAPSHOT=/data2/USCWeaponsStatsGathering/nutch/runtime/local
@@ -37,7 +37,7 @@ today=$(date +"%Y-%m-%d")
 updates=$today"DocIDs.txt"
 cat hadoop.log | grep Writing | grep $today | grep full_dump | cut -d" " -f 8 | cut -d"[" -f 2 | cut -d"]" -f 1 > $DELTA_UPDATES/$updates
 
-echo "Chunking docIDs for parallel Ingestion"
+echo "Chunking docIDs to parallelize Ingestion"
 cd $DELTA_UPDATES
 mkdir partFiles
 split -l 100000 $updates partFiles/parts
@@ -45,20 +45,21 @@ split -l 100000 $updates partFiles/parts
 echo "Starting Ingestion with parser-indexer"
 source /usr/local/memex/jdk8.sh
 # Choose relevant timeout value for Tika Parsers default 1 min
-ls partFiles/ | while read i; do  echo "sleep 5; echo $i; nohup java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list partFiles/$i -threads 1 -solr http://127.0.0.1:8983/solr/$CORE -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
+ls partFiles/* | while read i; do echo "sleep 5; echo $i; nohup java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list $i -threads 1 -solr http://127.0.0.1:8983/solr/$CORE -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
 
 cat cmd.txt | bash
-echo "JOB COMPLETE"
+echo "Ingestion COMPLETE"
 #Dont reIndex old docIDs
 rm -rf partFiles/
 
+cd /data2/USCWeaponsStatsGathering/nutch
 find $WRANGLER_SEGS -type d -name "2016*" > wrangler_segments.txt
 
-echo "starting parser indexer for Outlinks"
+echo "Starting parser indexer for Outlinks"
 java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar outlinks -list wrangler_segments.txt -solr http://localhost:8983/solr/$CORE -nutch $NUTCH_SNAPSHOT -dumpRoot $FULL_DUMP_PATH
 
-echo "starting parser indexer for Timestamps"
+echo "Starting parser indexer for Timestamps"
 java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar lastmodified -solr http://localhost:8983/solr/$CORE -list wrangler_segments.txt -dumpRoot $FULL_DUMP_PATH
 
 echo "Archiving Wrangler Segments"
-mv WRANGLER_SEGS/* WRANGLER_ARCHIVE/ 
+mv WRANGLER_SEGS/* WRANGLER_ARCHIVE/
