@@ -19,8 +19,8 @@
 
 while read p; do
   echo $p
-  #ls $p
-  ./dump_segments.sh $p
+  cd $2
+  ./bin/nutch dump -segment $p -outputDir $3 -reverseUrlDirs
 done <$1
 
-./generate_stats.sh
+#./generate_stats.sh

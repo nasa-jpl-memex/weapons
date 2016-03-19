@@ -17,31 +17,48 @@
 #
 #
 
-# Expect Weekly Segments to be in ~/wrangler_crawl/production
-# Ensure Dependency Bash Scripts are enabled
+# Modify $WRANGLER_SEGS to reflect Weekly Fresh Segments to be dumped & ingestd
+WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/production
+WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/archive
+NUTCH_SNAPSHOT=/data2/USCWeaponsStatsGathering/nutch/runtime/local
+FULL_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/full_dump
+DELTA_UPDATES=/usr/local/memex/wrangler_crawl/deltaUpdates
+NUTCH_TIKA_SOLR=/usr/local/memex/imagecat/tmp/parser-indexer/target
+CORE=imagecatdev
+
 cd /data2/USCWeaponsStatsGathering/nutch
-find /usr/local/memex/wrangler_crawl/production -type d -name "segments" > current_scp_wrangler_segments.txt
-# Dump Segments
-./wrangler_batch_dump.sh current_scp_wrangler_segments.txt
-mv /usr/local/memex/wrangler_crawl/production/* /usr/local/memex/wrangler_crawl/archive/
+find $WRANGLER_SEGS -type d -name "segments" > wrangler_segments.txt
+echo "Dumping Segments Now"
+./wrangler_batch_dump.sh wrangler_segments.txt $NUTCH_SNAPSHOT $FULL_DUMP_PATH
+echo "Dump complete, Obtaining Delta updates/docIDs of fileDumper"
 
-# Find delta updates/docIDs of fileDumper
-cd runtime/local/logs
-today=$(date +"%m-%d-%y")
+cd $NUTCH_SNAPSHOT/logs
+today=$(date +"%Y-%m-%d")
 updates=$today"DocIDs.txt"
-cat hadoop.log | grep Writing | cut -d" " -f 8 | cut -d"[" -f 2 | cut -d"]" -f 1 > /usr/local/memex/wrangler_crawl/deltaUpdates/$updates
+cat hadoop.log | grep Writing | grep $today | grep full_dump | cut -d" " -f 8 | cut -d"[" -f 2 | cut -d"]" -f 1 > $DELTA_UPDATES/$updates
 
-# Chunk Files
-cd /usr/local/memex/wrangler_crawl/deltaUpdates/
+echo "Chunking docIDs for parallel Ingestion"
+cd $DELTA_UPDATES
 mkdir partFiles
-split -l 300000 $updates partFiles/parts
+split -l 100000 $updates partFiles/parts
 
-# Fire off parser-indexer
+echo "Starting Ingestion with parser-indexer"
 source /usr/local/memex/jdk8.sh
 # Choose relevant timeout value for Tika Parsers default 1 min
-ls partFiles/ | while read i; do  echo "sleep 5; echo $i; nohup java -jar /usr/local/memex/imagecat/tmp/parser-indexer/target/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list partFiles/$i -threads 1 -solr http://127.0.0.1:8983/solr/imagecatdev -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
+ls partFiles/ | while read i; do  echo "sleep 5; echo $i; nohup java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list partFiles/$i -threads 1 -solr http://127.0.0.1:8983/solr/$CORE -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
 
 cat cmd.txt | bash
 echo "JOB COMPLETE"
-# Dont reIndex old docIDs
+#Dont reIndex old docIDs
 rm -rf partFiles/
+
+find $WRANGLER_SEGS -type d -name "2016*" > wrangler_segments.txt
+
+echo "starting parser indexer for Outlinks"
+java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar outlinks -list wrangler_segments.txt -solr http://localhost:8983/solr/$CORE -nutch $NUTCH_SNAPSHOT -dumpRoot $FULL_DUMP_PATH
+
+echo "starting parser indexer for Timestamps"
+java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar lastmodified -solr http://localhost:8983/solr/$CORE -list wrangler_segments.txt -dumpRoot $FULL_DUMP_PATH
+
+echo "Archiving Wrangler Segments"
+mv WRANGLER_SEGS/* WRANGLER_ARCHIVE/ 
