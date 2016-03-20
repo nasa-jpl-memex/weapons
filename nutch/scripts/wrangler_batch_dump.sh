@@ -17,10 +17,16 @@
 #
 #
 
+FULL_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/full_dump
+IMG_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/image_dump
+VID_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/video_dump
+
 while read p; do
   echo $p
   cd $2
-  ./bin/nutch dump -segment $p -outputDir $3 -reverseUrlDirs
+  ./bin/nutch dump -segment $p -outputDir $FULL_DUMP_PATH -reverseUrlDirs
+  ./bin/nutch dump -segment $p -mimetype image/gif image/jpeg image/png image/svg+xml image/tiff image/vnd.microsoft.icon image/webp image/x-ms-bmp -outputDir $IMG_DUMP_PATH -reverseUrlDirs
+  ./bin/nutch dump -segment $p -mimetype video/x-msvideo video/mp4 video/x-ms-wmv video/quicktime video/x-m4v -outputDir $VID_DUMP_PATH -reverseUrlDirs 
 done <$1
 
 #./generate_stats.sh

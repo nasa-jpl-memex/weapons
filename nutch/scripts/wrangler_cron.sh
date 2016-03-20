@@ -18,18 +18,18 @@
 #
 
 # Modify $WRANGLER_SEGS to reflect Weekly Fresh Segments to be dumped & ingested
-WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/production
-WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/archive
+WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/dry_run1
+WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/dry_run1_archive
 NUTCH_SNAPSHOT=/data2/USCWeaponsStatsGathering/nutch/runtime/local
 FULL_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/full_dump
 DELTA_UPDATES=/usr/local/memex/wrangler_crawl/deltaUpdates
 NUTCH_TIKA_SOLR=/usr/local/memex/imagecat/tmp/parser-indexer/target
-CORE=imagecatdev
+CORE=cronIngest
 
 cd /data2/USCWeaponsStatsGathering/nutch
 find $WRANGLER_SEGS -type d -name "segments" > wrangler_segments.txt
 echo "Dumping Segments Now"
-./wrangler_batch_dump.sh wrangler_segments.txt $NUTCH_SNAPSHOT $FULL_DUMP_PATH
+./wrangler_batch_dump.sh wrangler_segments.txt $NUTCH_SNAPSHOT
 echo "Dump complete, Obtaining Delta updates/docIDs of fileDumper"
 
 cd $NUTCH_SNAPSHOT/logs
@@ -48,8 +48,7 @@ source /usr/local/memex/jdk8.sh
 ls partFiles/* | while read i; do echo "sleep 5; echo $i; nohup java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list $i -threads 1 -solr http://127.0.0.1:8983/solr/$CORE -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
 
 cat cmd.txt | bash
-echo "Ingestion COMPLETE"
-#Dont reIndex old docIDs
+echo "Ingestion COMPLETE, removing chunked docIDs to avoid future reIngestion"
 rm -rf partFiles/
 
 cd /data2/USCWeaponsStatsGathering/nutch
