@@ -17,10 +17,9 @@
 #
 #
 
-# Modify $WRANGLER_SEGS to reflect Weekly Fresh Segments to be dumped & ingested
-WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/dry_run1
-WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/dry_run1_archive
-CORE=cronIngest
+WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/production
+WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/archive
+CORE=imagecatdev
 
 NUTCH_SNAPSHOT=/data2/USCWeaponsStatsGathering/nutch/runtime/local
 FULL_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/full_dump
@@ -36,13 +35,13 @@ echo "Dump complete, Obtaining Delta updates/docIDs of fileDumper"
 cd $NUTCH_SNAPSHOT/logs
 today=$(date +"%Y-%m-%d")
 updates=$today"DocIDs.txt"
-# ***************** One Time change *change Skipping to Writing* ***********************
-cat hadoop.log | grep Skipping | grep $today | grep full_dump | grep -o /data2[^]]* > $DELTA_UPDATES/$updates
+# to re-ingest Dumped Docs, change Writing to Skipping 
+cat hadoop.log | grep Writing | grep $today | grep full_dump | grep -o /data2[^]]* > $DELTA_UPDATES/$updates
 
 echo "Chunking docIDs to parallelize Ingestion"
 cd $DELTA_UPDATES
 mkdir partFiles
-split -l 100000 $updates partFiles/parts
+split -l 50000 $updates partFiles/parts
 
 echo "Starting Ingestion with parser-indexer"
 source /usr/local/memex/jdk8.sh
@@ -51,7 +50,7 @@ ls partFiles/* | while read i ; do echo "sleep 5; echo $i; java -jar $NUTCH_TIKA
 echo "wait" >> cmd.txt
 cat cmd.txt | bash
 
-echo "Ingestion COMPLETE, remove chunked docIDs to avoid future reIngestion"
+echo "Ingestion COMPLETE, removing chunked docIDs to avoid future reIngestion"
 rm -rf partFiles/
 
 cd /data2/USCWeaponsStatsGathering/nutch
@@ -64,4 +63,4 @@ echo "Starting parser indexer for Timestamps"
 java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar lastmodified -solr http://localhost:8983/solr/$CORE -list wrangler_segments.txt -dumpRoot $FULL_DUMP_PATH
 
 echo "Archiving Wrangler Segments"
-mv WRANGLER_SEGS/* WRANGLER_ARCHIVE/
+mv $WRANGLER_SEGS/* $WRANGLER_ARCH/
