@@ -20,11 +20,12 @@
 # Modify $WRANGLER_SEGS to reflect Weekly Fresh Segments to be dumped & ingested
 WRANGLER_SEGS=/usr/local/memex/wrangler_crawl/dry_run1
 WRANGLER_ARCH=/usr/local/memex/wrangler_crawl/dry_run1_archive
+CORE=cronIngest
+
 NUTCH_SNAPSHOT=/data2/USCWeaponsStatsGathering/nutch/runtime/local
 FULL_DUMP_PATH=/data2/USCWeaponsStatsGathering/nutch/full_dump
 DELTA_UPDATES=/usr/local/memex/wrangler_crawl/deltaUpdates
 NUTCH_TIKA_SOLR=/usr/local/memex/imagecat/tmp/parser-indexer/target
-CORE=cronIngest
 
 cd /data2/USCWeaponsStatsGathering/nutch
 find $WRANGLER_SEGS -type d -name "segments" > wrangler_segments.txt
@@ -35,7 +36,8 @@ echo "Dump complete, Obtaining Delta updates/docIDs of fileDumper"
 cd $NUTCH_SNAPSHOT/logs
 today=$(date +"%Y-%m-%d")
 updates=$today"DocIDs.txt"
-cat hadoop.log | grep Writing | grep $today | grep full_dump | cut -d" " -f 8 | cut -d"[" -f 2 | cut -d"]" -f 1 > $DELTA_UPDATES/$updates
+# ***************** One Time change *change Skipping to Writing* ***********************
+cat hadoop.log | grep Skipping | grep $today | grep full_dump | grep -o /data2[^]]* > $DELTA_UPDATES/$updates
 
 echo "Chunking docIDs to parallelize Ingestion"
 cd $DELTA_UPDATES
@@ -45,10 +47,11 @@ split -l 100000 $updates partFiles/parts
 echo "Starting Ingestion with parser-indexer"
 source /usr/local/memex/jdk8.sh
 # Choose relevant timeout value for Tika Parsers default 1 min
-ls partFiles/* | while read i; do echo "sleep 5; echo $i; nohup java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -list $i -threads 1 -solr http://127.0.0.1:8983/solr/$CORE -batch 500 -timeout 60000 > outs/nohup-$i.out & " ; done > cmd.txt
-
+ls partFiles/* | while read i ; do echo "sleep 5; echo $i; java -jar $NUTCH_TIKA_SOLR/nutch-tika-solr-1.0-SNAPSHOT.jar postdump -solr http://localhost:8983/solr/$CORE -list $i -threads 1 -timeout 60000 > $i.out & " ; done > cmd.txt
+echo "wait" >> cmd.txt
 cat cmd.txt | bash
-echo "Ingestion COMPLETE, removing chunked docIDs to avoid future reIngestion"
+
+echo "Ingestion COMPLETE, remove chunked docIDs to avoid future reIngestion"
 rm -rf partFiles/
 
 cd /data2/USCWeaponsStatsGathering/nutch
