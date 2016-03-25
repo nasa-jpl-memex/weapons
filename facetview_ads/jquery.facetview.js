@@ -859,9 +859,28 @@ search box - the end user will not know they are happening.
         };
 
         // given a result record, build how it should look on the page
+        var cached_urls = {};
         var buildrecord = function(index) {
             var record = options.data['records'][index];
             var result = options.resultwrap_start;
+
+            result += '<b style="font-size: 16pt;"> Title: (coming soon)</b><br><br>'
+
+            cached_urls[index] = record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://imagecat.dyndns.org/weapons/alldata/");
+
+            result += '\
+            <div class="btn-group" style="margin-bottom: 5px;">\
+                <a id="showad_button' + index + '" class="btn dropdown-toggle btn-info" data-toggle="dropdown" href="#" style="display: inline-block; text-align: center; float: none; width: 30%;">\
+                    Show Original Ad\
+                <span class="caret"></span>\
+                </a>\
+                <b> ... or open in </b><a target="_blank" href="' + cached_urls[index] + '">new tab</a>\
+                <div id="cached_ad' + index + '" class="box"></div><br><br>\
+            </div>'
+
+            // result += '
+            
+            // console.log(record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://imagecat.dyndns.org/weapons/alldata/"))
             // add first image where available
             // TODO: this is where we need to take the URL as stored in ID field, translate it to a web URL, and show it.
             // if (options.image_record) {
@@ -874,18 +893,7 @@ search box - the end user will not know they are happening.
             //         result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + url + '" />';
             //     }
             // }
-            // else if (options.display_images) {
-            //     if (record.outlinks) {
-            //         for (var out_link_idx=0; out_link_idx < record.outlinks.length; out_link_idx++) {
-            //             var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
-            //             var img = regex.exec(record.outlinks[out_link_idx]);
-            //             if (img) {
-            //                 result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + img[0] + '" />';
-            //             }
-            //         }
-            //         result += '<br clear="all">';
-            //     }
-            // }
+
             // add the record based on display template if available
             var display = options.result_display;
             var lines = '';
@@ -950,11 +958,12 @@ search box - the end user will not know they are happening.
                     scroll_windows = Math.floor(image_links.length  / 4) + 1;
                 }
 
+                // to move button to middle, add "display: inline-block; text-align: center; float: none;"
                 if(scroll_windows > 0){
                     result += '\
                     <div class="btn-group" style="margin-bottom: 10px;">\
                         <center>\
-                            <a id="showimages_button' + index + '" class="btn dropdown-toggle btn-large" data-toggle="dropdown" href="#" style="display: inline-block; text-align: center; float: none; width: 30%;">\
+                            <a id="showimages_button' + index + '" class="btn dropdown-toggle btn-medium" data-toggle="dropdown" href="#" style=" width: 30%;">\
                                 Show/Hide Images\
                             <span class="caret"></span>\
                             </a>\
@@ -1285,11 +1294,26 @@ search box - the end user will not know they are happening.
                     } else{
                         document.getElementById("carousel" + button_index).style.display = "block";
                     }
-                    
+                 })
+            
+            // Show cached ad when button clicked
+            //-----------------------------------------      
+                $("#showad_button" + x).on("click", function(){
+                    var button_index = $(this)[0].id.replace("showad_button","");
+
+                    if (document.getElementById("cached_ad" + button_index).style.display == "block"){
+                        document.getElementById("cached_ad" + button_index).style.display = "none";
+                        document.getElementById("cached_ad" + button_index).innerHTML = null; 
+                    }
+                    else{
+                        document.getElementById("cached_ad" + button_index).innerHTML = '\
+                        <iframe class="frame" src="' + cached_urls[button_index] + 
+                        '" width = "815px" height = "200px"></iframe>';
+
+                        document.getElementById("cached_ad" + button_index).style.display = "block";
+                    }
                 })
-            }
-            
-            
+            }            
         };
 
         // ===============================================

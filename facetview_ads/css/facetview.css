@@ -64,7 +64,7 @@
 
 .highlight{
     background: rgba(255, 230, 0, 0.5);
-    padding: 1px 1px;
+    padding: 1px 1px;   
     border-radius: 1px;
     display:inline-block;
 }
@@ -123,3 +123,27 @@
     stroke: #ccc;
     stroke-width: 1.5px;
 }
+
+.frame {
+        width: 1200px;
+        height: 330px;
+        -ms-zoom: 0.70;
+        -moz-transform: scale(0.70);
+        -moz-transform-origin: 0 0;
+        -o-transform: scale(0.70);
+        -o-transform-origin: 0 0;
+        -webkit-transform: scale(0.70);
+        -webkit-transform-origin: 0 0;
+    }
+
+.box{
+    display: none;
+    height: 280px;
+    width: 100%;
+}
+
+/*a:hover + .box,.box:hover{
+    display: block;
+    position: relative;
+    z-index: 100;
+}*/
