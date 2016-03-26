@@ -939,26 +939,70 @@ search box - the end user will not know they are happening.
             lines ? result += lines : result += JSON.stringify(record,"","    ");
             
 
+            String.prototype.replaceAll = function(search, replacement) {
+                var target = this;
+                return target.replace(new RegExp(search, 'g'), replacement);
+            };
+            
+            function UrlExists(url, cb){
+                try{
+                    jQuery.ajax({
+                        url:      url,
+                        dataType: 'text',
+                        type:     'HEAD',
+                        async: false,
+                        complete:  function(xhr){
+                            if(typeof cb === 'function')
+                               cb.apply(this, [xhr.status]);
+                        }
+                    });
+                } catch(e){
+                    return false;
+                }
+                
+            }
+
             // Image Scroller
             //-----------------
             if (options.display_images && record.outlinks) {
-                var image_links = [];
-                for (var out_link_idx=0; out_link_idx < record.outlinks.length; out_link_idx++) {
+                var img_src = [];
+                var image_urls = [];
+                var image_ids = [];
+                for (var x=0; x < record.outlinks.length; x++) {
                     var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
-                    var img = regex.exec(record.outlinks[out_link_idx]);
+                    var img = regex.exec(record.outlinks[x]);
                     if(img){
-                        image_links.push(img[0]);
+                        var cached_img = record.outpaths[x].replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://imagecat.dyndns.org/weapons/alldata/")
+                        
+                        //SOME IMAGES NOT IN CACHE - IF NOT THERE, TRY THE ACTUAL LINK
+                        // UrlExists(cached_img, function(status){
+                        //     if(status === 200 ){
+                        //        img_src.push(cached_img);
+                        //     }
+                        //     else if(status === 404 || status == 0){
+                        //        img_src.push(record.outlinks[x])
+                        //     }
+                        // });
+
+                        img_src.push(cached_img);
+                        image_urls.push(record.outlinks[x]);
+
+                        var img_id = cached_img.split("/")[cached_img.split("/").length -1];
+                        // var cached_img = url_reformat.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://darpamemex:darpamemex@imagecat.dyndns.org/weapons/alldata/")
+                        image_ids.push(img_id)
                     }
                 }
+                console.log(img_src)
                 var scroll_windows;
-                if (image_links.length % 4 == 0){
-                    scroll_windows = image_links.length  / 4;
+                if (image_ids.length % 4 == 0){
+                    scroll_windows = image_ids.length  / 4;
                 }
                 else{
-                    scroll_windows = Math.floor(image_links.length  / 4) + 1;
+                    scroll_windows = Math.floor(image_ids.length  / 4) + 1;
                 }
 
                 // to move button to middle, add "display: inline-block; text-align: center; float: none;"
+                imagespace_url1 = ""
                 if(scroll_windows > 0){
                     result += '\
                     <div class="btn-group" style="margin-bottom: 10px;">\
@@ -973,17 +1017,19 @@ search box - the end user will not know they are happening.
                         <div class="carousel-inner" role="listbox">\
                             <div class="item active" style="margin-left: 100px;">'
                                 for (var x=0; x < 4; x++) {
-                                    if(image_links[x]){
-                                        result += '<img class="scrollthumb" src="' + image_links[x] + '">';
+                                    if(image_ids[x]){
+//http://imagecat.dyndns.org/weapons/imagespace/#search/http%3A%2F%2Fdarpamemex%3Adarpamemex%40imagecat.dyndns.org%2Fweapons%2Falldata%2Fcom%2Ftheshootershangout%2Fwww%2F2F587FC5249AE1692DF07924B13B9A218C51A7F3AB8E03024A6D0DE2CC5824FF/cmu-full
+                                        result += '<a target="_blank" href="http://imagecat.dyndns.org/weapons/imagespace/#search/' + image_ids[x] + '">\
+                                        <img class="scrollthumb" src="' + img_src[x] + '"></a>';
                                     }
                                 }
                             result += '\
                             </div>'
                                 for (var x=2; x <= scroll_windows; x++){
                                     result += '<div class="item" style="margin-left: 100px;">'
-                                    for (var j=0; j < image_links.length; j++) {
-                                        if (j >= (x-1)*4 && j < x*4 && image_links[j]) {
-                                            result += '<img class="scrollthumb" src="' + image_links[j] + '">';
+                                    for (var j=0; j < image_ids.length; j++) {
+                                        if (j >= (x-1)*4 && j < x*4 && image_ids[j]) {
+                                            result += '<img class="scrollthumb" src="' + img_src[j] + '">';
                                         }
                                     }
                                     result += '</div>'
