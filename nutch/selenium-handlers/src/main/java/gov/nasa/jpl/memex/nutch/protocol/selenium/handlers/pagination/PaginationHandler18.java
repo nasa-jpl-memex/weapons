@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package gov.nasa.jpl.memex.nutch.protocol.selenium.handlers.pagination;
+package gov.nasa.jpl.memex.nutch.protocol.selenium.handlers.Pagination;
 
 
         import java.util.ArrayList;

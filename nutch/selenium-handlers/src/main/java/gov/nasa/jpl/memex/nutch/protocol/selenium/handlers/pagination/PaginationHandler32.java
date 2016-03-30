@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package gov.nasa.jpl.memex.nutch.protocol.selenium.handlers.pagination;
+package gov.nasa.jpl.memex.nutch.protocol.selenium.handlers.Pagination;
 
 import org.apache.nutch.protocol.interactiveselenium.InteractiveSeleniumHandler;
         import org.openqa.selenium.WebDriver;
