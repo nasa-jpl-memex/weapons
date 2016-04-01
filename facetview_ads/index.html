@@ -45,87 +45,80 @@ jQuery(document).ready(function($) {
           {"field":"locations", "display":"Locations"},
           {"field":"organizations", "display":"Organizations"},
           {"field":"dates", "display":"Dates"},
-          {"field":"indexedAt", "display":"Crawl Dates"},
+          {"field":"indexedAt", "display":"Crawl Dates"}
     ],
     paging: {
         from: 0,
         size: 10
     },
-    // "linechart_field"  : "pub_date",
+    // "linechart_field"  : "dates",
     // "dendrogram_field" : "authors", 
     "display_images" : true,
-    "text_limit": 5000,
+    "text_limit": 400,
     "result_display" : [ 
         [
           {
-            "pre" : "<b>URL:  </b><text>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">URL: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "url",
-            "post" : "</text>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Dates:  </b><text>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Dates: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "dates",
-            "post" : "</text>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Persons:  </b>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Locations: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "locations",
+            "post" : "</span>"
+          }
+        ],
+        [
+          {
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Persons: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "persons",
-            "post" : "<br>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Weapon Names:  </b><text>",
-            "field" : "weaponnames",
-            "post" : "</text><br>"
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Weapon Names: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "ner_weapon_name_ts_md",
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Weapon Types:  </b><text>",
-            "field" : "weapontypes",
-            "post" : "</text><br>"
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Weapon Types: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "ner_weapon_type_ts_md",
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Weapon Cost:  </b><text>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Weapon Costs: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "ner_money_ts_md",
-            "post" : "</text><br>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Content:  </b><text>",
-            "field" : "content",
-            "post" : "</text><br>"
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Organizations: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "organizations",
+            "post" : "</span>"
           }
         ], 
         [
           {
-            "pre" : "<b>Locations:   </b><text>",
-            "field" : "locations",
-            "post" : "</text><br>"
+            "pre" : '<br><b style="display:inline-block; width: 150px; float:left;">Content: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "content",
+            "post" : "</span><br>"
           }
-        ],
-        [
-          {
-            "pre" : "<b>Organizations:  </b><text>",
-            "field" : "organizations",
-            "post" : "</text><br>"
-          }
-        ],
-        [
-          {
-              "pre": "<span class='highlightings'>",
-              "highlight_field": "content",
-              "post": "</span>"
-          }
-        ]    
+        ]
     ],
     "linkify" : true
     }
@@ -153,7 +146,7 @@ $('.facetview_filtershow' ).trigger( "click" );
   <div class="content">
     <div class="page-header">
       <h1>
-      Weapons Ads - Search
+      Weapons Ads
       </h1>
     </div>
 

@@ -39,6 +39,11 @@
 
 #facetview_results{
     table-layout: fixed;
+    width: 860px;
+}
+
+#facetview_results tbody tr td{
+    width: 860px;
 }
 
 #thumbslist{
@@ -49,6 +54,7 @@
 
 #facetview_results tr{
     overflow-wrap: break-word;
+    width: 869px !important;
 }
 
 .scrollthumb{

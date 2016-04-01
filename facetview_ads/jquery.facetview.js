@@ -858,49 +858,73 @@ search box - the end user will not know they are happening.
             }
         };
 
-        // given a result record, build how it should look on the page
+        function indexes(source, find) {
+            var result = [];
+            for (i = 0; i < source.length; ++i) {
+                if (source.substring(i, i + find.length).toLowerCase() == find) {
+                    result.push(i);
+                }
+            }
+            return result;
+        }
+
         var cached_urls = {};
+        // given a result record, build how it should look on the page
         var buildrecord = function(index) {
             var record = options.data['records'][index];
             var result = options.resultwrap_start;
 
-            result += '<b style="font-size: 16pt;"> Title: (coming soon)</b><br><br>'
+            String.prototype.replaceAll = function(search, replacement) {
+                var target = this;
+                return target.replace(new RegExp(search, 'g'), replacement);
+            };
 
-            cached_urls[index] = record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://imagecat.dyndns.org/weapons/alldata/");
+            cached_urls[index] = record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/",
+                "http://imagecat.dyndns.org/weapons/alldata/");
+
+            result += '<a target="_blank" href="' + cached_urls[index] +'"><b style="font-size: 16pt;"> Title: (coming soon)</b></a><br><br>'
 
             result += '\
             <div class="btn-group" style="margin-bottom: 5px;">\
-                <a id="showad_button' + index + '" class="btn dropdown-toggle btn-info" data-toggle="dropdown" href="#" style="display: inline-block; text-align: center; float: none; width: 30%;">\
+                <a id="showad_button' + index + '" class="btn dropdown-toggle btn-default" data-toggle="dropdown"\
+                    href="#" style="display: inline-block; text-align: center; float: none; width: 30%;">\
                     Show Original Ad\
                 <span class="caret"></span>\
                 </a>\
-                <b> ... or open in </b><a target="_blank" href="' + cached_urls[index] + '">new tab</a>\
                 <div id="cached_ad' + index + '" class="box"></div><br><br>\
             </div>'
 
-            // result += '
+            // Define terms to be highlighted, allowing for easy highlighting and filtering of content text based on search/filters
+            //free text query val
+            var freetext_q = document.getElementById("freetext").value.replace(/"/g, '').replace("AND","")
+                .replace("OR","").replace("  "," ").split(" ");
+
+            if(freetext_q[freetext_q.length-1] == ""){
+                freetext_q = freetext_q.slice(0, freetext_q.length-1)
+            }
+    
+            // build list of filter values from query string
+            var filters = options.querystring.slice(options.querystring.indexOf("active_facets={"),
+                options.querystring.lastIndexOf("}")).replace("active_facets={","").split(/[:,]+/);
             
-            // console.log(record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://imagecat.dyndns.org/weapons/alldata/"))
-            // add first image where available
-            // TODO: this is where we need to take the URL as stored in ID field, translate it to a web URL, and show it.
-            // if (options.image_record) {
-            //     var url = record["id"].replace(options.url_from, options.url_to);
-            //     if (record["contentType"].toLowerCase() === "image/svg+xml") {
-            //         // result += '<svg width="100" height="150"><use xlink:href="' + url + '" /></svg>';
-            //         result += '<img class="thumbnail" style="float:left" width="100" height="150" src="' + url + '" />';
-            //     }
-            //     else {
-            //         result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + url + '" />';
-            //     }
-            // }
+            filter_terms = []
+            for (var x = 0; x < filters.length; x++){
+                if (x % 2 == 1){
+                    filter_terms.push(filters[x].replace(/"/g, ''));
+                }
+            }
+            freetext_q != "" ? highlight_terms = filter_terms.concat(freetext_q) : highlight_terms = filter_terms;
 
             // add the record based on display template if available
             var display = options.result_display;
             var lines = '';
+        
             for ( var lineitem = 0; lineitem < display.length; lineitem++ ) {
                 line = "";
+                var filtered_line = ""; //used for content field only
+                var thekey;
                 for ( var object = 0; object < display[lineitem].length; object++ ) {
-                    var thekey = display[lineitem][object]['field'];
+                    thekey = display[lineitem][object]['field'];
                     var thevalue = getvalue(record, thekey);
                     if (thevalue && thevalue.toString().length) {
                         if (display[lineitem][object]['pre']) {
@@ -921,29 +945,59 @@ search box - the end user will not know they are happening.
                                 line += "...";
                             }
                         } else {
-                            if (options.text_limit) {
-                                thevalue = thevalue.length > options.text_limit ?
-                                    thevalue.substring(0, options.text_limit - 3) + "..." :
-                                    thevalue.substring(0, options.text_limit);
-                            }
                             line += thevalue;
                         }
                         display[lineitem][object]['post'] 
                             ? line += display[lineitem][object]['post'] : line += ' ';
                     }
                 }
-                if (line) {
-                    lines += line.replace(/^\s/,'').replace(/\s$/,'').replace(/\,$/,'') + "<br />";
+                line = line.replace(/^\s/,'').replace(/\s$/,'').replace(/\,$/,'').replaceAll(/\s\s+/," "); //multiple spaces were throwing off char limit
+                var max_content_lines = 5;
+                //"Content" field filtering: only add lines of "content" field that have a search/filter term in them
+                //-----------------------------------------------------------------------
+                if(line && thekey == "content" && highlight_terms.length > 0){ 
+                    for (var x=0; x < highlight_terms.length; x++){
+                        if(line.indexOf(highlight_terms[x]) > -1){
+                            var indices = indexes(line, highlight_terms[x]);
+                            for (j=0; j < indices.length; j++){
+                                if(j < max_content_lines){
+                                    var highlight_line = "..." + line.substring(indices[j]-60,indices[j]+60) + "...<br>"; //60 fits most to one line     
+                                    if(j == 0){
+                                        highlight_line = line.substring(indices[j]-60,indices[j]+60) + "...<br>"; //don't want ellipsis before "Content:"
+                                        if(highlight_line.indexOf("<b>Content:") == -1){
+                                            highlight_line = "<b>Content: </b>" + highlight_line
+                                        }
+                                        highlight_line = highlight_line.replace("<b>Content: </b>","<b>Content (" + 
+                                            highlight_terms[x] + "): </b><br>...");
+                                        if(x == 0){
+                                            highlight_line = "<br>" + highlight_line; //first needs to start with br
+                                        }
+                                    }
+                                    if(j > 0){
+                                        highlight_line = highlight_line.replace("<br><b>Content: </b>","");
+                                    }
+                                    filtered_line += highlight_line;
+                                    
+                                }
+                                else if (j == max_content_lines){
+                                    filtered_line += "...<br>"
+                                }
+                            }
+                        }
+                    }
+                    lines += filtered_line;
+                } else if (line) {
+                    if (options.text_limit) {
+                        line = line.length > options.text_limit ?
+                            line.substring(0, options.text_limit - 3) + "...</span><br>" :
+                            line.substring(0, options.text_limit);
+                    }
+                    lines += line + "<br />";
                 }
             }
-            lines ? result += lines : result += JSON.stringify(record,"","    ");
+            lines ? result += lines : result += JSON.stringify(record,"","    ");        
             
-
-            String.prototype.replaceAll = function(search, replacement) {
-                var target = this;
-                return target.replace(new RegExp(search, 'g'), replacement);
-            };
-            
+            // Used to handle problem of missing cached images
             function UrlExists(url, cb){
                 try{
                     jQuery.ajax({
@@ -959,7 +1013,6 @@ search box - the end user will not know they are happening.
                 } catch(e){
                     return false;
                 }
-                
             }
 
             // Image Scroller
@@ -972,9 +1025,17 @@ search box - the end user will not know they are happening.
                     var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
                     var img = regex.exec(record.outlinks[x]);
                     if(img){
-                        var cached_img = record.outpaths[x].replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://imagecat.dyndns.org/weapons/alldata/")
+                        var cached_img;
+                        var img_id;
+                        try{
+                            cached_img = record.outpaths[x].replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/",
+                                "http://imagecat.dyndns.org/weapons/alldata/");
+                            img_id = cached_img.split("/")[cached_img.split("/").length -1];
+                        } catch(e){
+                            console.log("Different number of outpaths and outlinks in index.")
+                        }
                         
-                        //SOME IMAGES NOT IN CACHE - IF NOT THERE, TRY THE ACTUAL LINK
+                        //SOME IMAGES NOT IN CACHE - IF NOT THERE, TRY THE ACTUAL URL
                         // UrlExists(cached_img, function(status){
                         //     if(status === 200 ){
                         //        img_src.push(cached_img);
@@ -987,12 +1048,10 @@ search box - the end user will not know they are happening.
                         img_src.push(cached_img);
                         image_urls.push(record.outlinks[x]);
 
-                        var img_id = cached_img.split("/")[cached_img.split("/").length -1];
-                        // var cached_img = url_reformat.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/","http://darpamemex:darpamemex@imagecat.dyndns.org/weapons/alldata/")
                         image_ids.push(img_id)
                     }
                 }
-                console.log(img_src)
+                //Determine how many windows are needed
                 var scroll_windows;
                 if (image_ids.length % 4 == 0){
                     scroll_windows = image_ids.length  / 4;
@@ -1002,12 +1061,12 @@ search box - the end user will not know they are happening.
                 }
 
                 // to move button to middle, add "display: inline-block; text-align: center; float: none;"
-                imagespace_url1 = ""
                 if(scroll_windows > 0){
                     result += '\
                     <div class="btn-group" style="margin-bottom: 10px;">\
                         <center>\
-                            <a id="showimages_button' + index + '" class="btn dropdown-toggle btn-medium" data-toggle="dropdown" href="#" style=" width: 30%;">\
+                            <a id="showimages_button' + index + '" class="btn dropdown-toggle btn-medium" data-toggle="dropdown"\
+                             href="#" style=" width: 30%;">\
                                 Show/Hide Images\
                             <span class="caret"></span>\
                             </a>\
@@ -1018,8 +1077,8 @@ search box - the end user will not know they are happening.
                             <div class="item active" style="margin-left: 100px;">'
                                 for (var x=0; x < 4; x++) {
                                     if(image_ids[x]){
-//http://imagecat.dyndns.org/weapons/imagespace/#search/http%3A%2F%2Fdarpamemex%3Adarpamemex%40imagecat.dyndns.org%2Fweapons%2Falldata%2Fcom%2Ftheshootershangout%2Fwww%2F2F587FC5249AE1692DF07924B13B9A218C51A7F3AB8E03024A6D0DE2CC5824FF/cmu-full
-                                        result += '<a target="_blank" href="http://imagecat.dyndns.org/weapons/imagespace/#search/' + image_ids[x] + '">\
+                                        result += '<a target="_blank" href="http://imagecat.dyndns.org/weapons/imagespace/#search/' 
+                                            + image_ids[x] + '">\
                                         <img class="scrollthumb" src="' + img_src[x] + '"></a>';
                                     }
                                 }
@@ -1029,12 +1088,15 @@ search box - the end user will not know they are happening.
                                     result += '<div class="item" style="margin-left: 100px;">'
                                     for (var j=0; j < image_ids.length; j++) {
                                         if (j >= (x-1)*4 && j < x*4 && image_ids[j]) {
-                                            result += '<img class="scrollthumb" src="' + img_src[j] + '">';
+                                            result += '<a target="_blank" href="http://imagecat.dyndns.org/weapons/imagespace/#search/' 
+                                                + image_ids[j] + '">\
+                                            <img class="scrollthumb" src="' + img_src[j] + '"></a>';
                                         }
                                     }
                                     result += '</div>'
                                 }
                             result += '</div>'
+                        //add scroller buttons if more than 1 scroll window is needed
                         if(scroll_windows > 1){
                             result += '\
                             <a class="left carousel-control" href="#carousel' + index + '" role="button" data-slide="prev" style="vertical-align: middle;">\
@@ -1047,10 +1109,8 @@ search box - the end user will not know they are happening.
                         result += '</div>'
                 }
             }
-
             
             result += options.resultwrap_end;
-
 
             return result;
         };
@@ -1060,7 +1120,6 @@ search box - the end user will not know they are happening.
             event.preventDefault();
             var record = options.data['records'][$(this).attr('href')];
             alert(JSON.stringify(record,"","    "));
-            
         }
 
         // put the results on the page
@@ -1310,28 +1369,13 @@ search box - the end user will not know they are happening.
                 options.post_search_callback.call(this);
             }
 
-            //Highlight search terms and query filters
+            //Highlight search terms and query filters (defined above)
             //---------------------------------------
-
-            //free text query val
-            var freetext_q = document.getElementById("freetext").value.replace(/"/g, '').replace("AND","").replace("OR","").replace("  "," ").split(" ");
-    
-            // build list of filter values from query string
-            var filters = options.querystring.slice(options.querystring.indexOf("active_facets={"), options.querystring.lastIndexOf("}")).replace("active_facets={","").split(/[:,]+/);
-            filter_terms = []
-            for (var x = 0; x < filters.length; x++){
-                if (x % 2 == 1){
-                    filter_terms.push(filters[x].replace(/"/g, ''));
-                }
-            }
-            highlight_terms = filter_terms.concat(freetext_q);
-
             $("#facetview_results").highlight(highlight_terms);
-
-
-            // Show image carousel when button clicked
-            //-----------------------------------------
+            
             for (var x = 0; x < options.paging.size; x ++){
+                // Show image carousel when button clicked
+                //-----------------------------------------
                 $("#showimages_button" + x).on("click", function(){
                     var button_index = $(this)[0].id.replace("showimages_button","");
 
@@ -1342,8 +1386,8 @@ search box - the end user will not know they are happening.
                     }
                  })
             
-            // Show cached ad when button clicked
-            //-----------------------------------------      
+                // Show cached ad when button clicked
+                //-----------------------------------------      
                 $("#showad_button" + x).on("click", function(){
                     var button_index = $(this)[0].id.replace("showad_button","");
 
