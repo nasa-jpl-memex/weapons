@@ -1353,7 +1353,7 @@ search box - the end user will not know they are happening.
             $.each(data.records, function(index, value) {
                 // write them out to the results div
                  $('#facetview_results', obj).append( buildrecord(index) );
-                 options.linkify ? $('#facetview_results tr:last-child', obj).linkify() : false;
+                 options.linkify ? $('#facetview_results tr:last-child', obj).linkify({target: "_blank"}) : false;
             });
             if ( options.result_box_colours.length > 0 ) {
                 jQuery('.result_box', obj).each(function () {
