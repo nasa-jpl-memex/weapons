@@ -9,13 +9,16 @@
   <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
   <script type="text/javascript" src="vendor/bootstrap/js/bootstrap.min.js"></script>  
 
-  <script type="text/javascript" src="vendor/linkify/1.0/jquery.linkify-1.0-min.js"></script>  
+  <script type="text/javascript" src="vendor/linkify/1.11/linkify-1.11-min.js"></script>  
   
   <link rel="stylesheet" href="vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.css">
   <script type="text/javascript" src="vendor/jquery-ui-1.8.18.custom/jquery-ui-1.8.18.custom.min.js"></script>
 
+  <script type="text/javascript" src="vendor/highlight.js"></script>
+  <script type="text/javascript" src="jquery.facetview.js"></script>
 
   <link rel="stylesheet" href="css/facetview.css">
+
   <link rel="stylesheet" href="css/style.css">
 
   <!-- Load c3.css -->
@@ -25,152 +28,111 @@
   <script src="vendor/d3-3.5.6/d3.min.js" charset="utf-8"></script>
   <script src="vendor/c3-0.4.10/c3.min.js"></script>
 
-  <script type="text/javascript" src="jquery.facetview.js"></script>
-
   <script type="text/javascript">
-function getParameterByName(name) {
-    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(decodeURIComponent(location.search));
-    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
 
-function drawPage(nav_page) {
-  nav_page = typeof nav_page !== 'undefined' ?  nav_page : false;
-  document.cookie="query="+getParameterByName('query');
-
-  var query = getParameterByName('query');
-  var paging = getParameterByName('paging')
-  paging = $.parseJSON(paging);
-  if (!paging)
-  {
-      paging = {"from": 0, "size": 10};
-  };
-  if (!paging.from) {
-      paging['from'] = 0;
-  }
-  if (!paging.size) {
-      paging['size'] = 10;
-  }
-
-  var facets = getParameterByName('facets')
-  facets = $.parseJSON(facets);
-
-  // Initial default set of facets.  URL parameters can redefine/refine this.
-  if (!facets) {
-    facets = [
+jQuery(document).ready(function($) {
+  $('.facet-view-simple').facetview({
+    "search_url": "http://imagecat.dyndns.org/solr/imagecatdev/select?",
+    "search_index": 'solr',
+    // "datatype": 'jsonp',
+    "facets": [
           {"field":"persons", "display":"Persons"},
-          {"field":"phonenumbers", "display":"Phone Numbers"},
-          //{"field":"keywords", "display":"Keywords"},
-          {"field":"weaponnames", "display":"Weapon Names"},
+          {"field":"ner_phone_number_t_md", "display":"Phone Number"},
+          {"field":"ner_weapon_name_ts_md", "display":"Weapon Names"},
           {"field":"weapontypes", "display":"Weapon Types"},
           {"field":"ner_money_ts_md", "display":"Weapon Cost"},
           {"field":"host", "display":"Weapon Website"},
           {"field":"locations", "display":"Locations"},
           {"field":"organizations", "display":"Organizations"},
-          //{"field":"age", "display":"Age"},
           {"field":"dates", "display":"Dates"},
-          //{"field":"image_links", "display":"Image Links"},
-      ]
-  }
-  var active_facets = getParameterByName('active_facets')
-  active_facets = $.parseJSON(active_facets);
-
-  if (!active_facets) active_facets = {};
-
-  $('.facet-view-simple').empty();
-  $('.facet-view-simple').facetview({
-    "search_url": "http://imagecat.dyndns.org/solr/imagecatdev/select?",
-    "search_index": "solr",
-    "text_limit": 512,
-    "object_limit": 10,
-    "paging": paging,
-    "q" : query,
-    "nav_page": nav_page,
-    "facets": facets,
-    "active_facets": active_facets,
+          {"field":"indexedAt", "display":"Crawl Dates"}
+    ],
+    paging: {
+        from: 0,
+        size: 10
+    },
+    // "linechart_field"  : "dates",
+    // "dendrogram_field" : "authors", 
     "display_images" : true,
-    "fields": ["title", "content", "persons", "weaponnames", "weapontypes",
-               "ner_money_ts_md", "host", "locations", "organizations", "url"],
+    "text_limit": 400,
     "result_display" : [ 
         [
           {
-            "pre" : "<b>URL:  </b><text>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">URL: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "url",
-            "post" : "</text><br>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Persons:  </b>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Dates: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "dates",
+            "post" : "</span>"
+          }
+        ],
+        [
+          {
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Locations: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "locations",
+            "post" : "</span>"
+          }
+        ],
+        [
+          {
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Persons: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "persons",
-            "post" : "<br>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Weapon Names:  </b><text>",
-            "field" : "weaponnames",
-            "post" : "</text><br>"
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Weapon Names: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "ner_weapon_name_ts_md",
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Weapon Types:  </b><text>",
-            "field" : "weapontypes",
-            "post" : "</text><br>"
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Weapon Types: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "ner_weapon_type_ts_md",
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Weapon Cost:  </b><text>",
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Weapon Costs: </b><span style="display:inline-block; width: 700px; float: left;">',
             "field" : "ner_money_ts_md",
-            "post" : "</text><br>"
+            "post" : "</span>"
           }
         ],
         [
           {
-            "pre" : "<b>Content:  </b><text>",
-            "field" : "content",
-            "post" : "</text><br>"
+            "pre" : '<b style="display:inline-block; width: 150px; float:left;">Organizations: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "organizations",
+            "post" : "</span>"
           }
         ], 
         [
           {
-            "pre" : "<b>Locations:   </b><text>",
-            "field" : "locations",
-            "post" : "</text><br>"
+            "pre" : '<br><b style="display:inline-block; width: 150px; float:left;">Content: </b><span style="display:inline-block; width: 700px; float: left;">',
+            "field" : "content",
+            "post" : "</span><br>"
           }
-        ],
-        [
-          {
-            "pre" : "<b>Organizations:  </b><text>",
-            "field" : "organizations",
-            "post" : "</text><br>"
-          }
-        ],
+        ]
     ],
     "linkify" : true
-
-    });
-// Automatically expands all facets with any contents
-//$('.facetview_filtershow' ).trigger( "click" );
-};
-
-jQuery(document).ready(function($) {
-   drawPage();
+    }
+  );
+$('.facetview_filtershow' ).trigger( "click" );
 });
 
-// Properly handles back/forward browser buttons
 window.onpopstate = function(state, title, url) {
     drawPage(true);
 };
-
   </script>
-
 </head>
 
-<body onunload="">
+<body>
 
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
@@ -188,7 +150,7 @@ window.onpopstate = function(state, title, url) {
   <div class="content">
     <div class="page-header">
       <h1>
-      Weapons Ads - Search
+      Weapons Ads
       </h1>
     </div>
 

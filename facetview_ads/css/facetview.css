@@ -36,6 +36,45 @@
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
+
+#facetview_results{
+    table-layout: fixed;
+    width: 860px;
+}
+
+#facetview_results tbody tr td{
+    width: 860px;
+}
+
+#thumbslist{
+    overflow: auto;
+    width: 800px;
+    height: auto;
+}
+
+#facetview_results tr{
+    overflow-wrap: break-word;
+    width: 869px !important;
+}
+
+.scrollthumb{
+    width: 150px;
+    max-height: 170px;
+    display: inline-block; 
+    float:left;
+    vertical-align: middle;
+    border: 1px solid #A9A9A9;
+    padding: 2px;
+    margin-left: 4px;
+}
+
+.highlight{
+    background: rgba(255, 230, 0, 0.5);
+    padding: 1px 1px;   
+    border-radius: 1px;
+    display:inline-block;
+}
+
 .facetview_rangecontainer{
     border:1px solid #ccc; 
     padding:5px; 
@@ -90,3 +129,27 @@
     stroke: #ccc;
     stroke-width: 1.5px;
 }
+
+.frame {
+        width: 1200px;
+        height: 330px;
+        -ms-zoom: 0.70;
+        -moz-transform: scale(0.70);
+        -moz-transform-origin: 0 0;
+        -o-transform: scale(0.70);
+        -o-transform-origin: 0 0;
+        -webkit-transform: scale(0.70);
+        -webkit-transform-origin: 0 0;
+    }
+
+.box{
+    display: none;
+    height: 280px;
+    width: 100%;
+}
+
+/*a:hover + .box,.box:hover{
+    display: block;
+    position: relative;
+    z-index: 100;
+}*/

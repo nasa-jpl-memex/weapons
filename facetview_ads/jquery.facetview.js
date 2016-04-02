@@ -114,13 +114,20 @@ if (!Array.prototype.indexOf) {
 
 /* EXPLAINING THE FACETVIEW OPTIONS
 Facetview options can be set on instantiation. The list below details which options are available.
+
 Options can also be set and retrieved externally via $.fn.facetview.options.
+
 Query values can also be read from the query parameters of the current page, or provided in
 the "source" option for initial search.
+
 Also, whilst facetview is executing a query, it will "show" any element with the "notify-loading" class.
+
 So that class can be applied to any element on a page that can be used to signify loading is taking place.
+
 Once facetview has executed a query, the querystring used is available under "options.querystring".
+
 And the result object as retrieved directly from the index is available under "options.rawdata".
+
 searchbox_class
 ---------------
 This should only be set if embedded_search is set to false, and if an alternative search box on the page should 
@@ -131,6 +138,7 @@ it should really identify a unique box on the page for entering search terms for
 So an ID could actually also be used - just precede with # instead of .
 This makes it possible to embed a search box anywhere on a page and have it be used as the source of simple 
 search parameters for the facetview. Only the last text box with this clas will be used.
+
 embedded_search
 ---------------
 Default to true, in which case full search term functionality is created and displayed on the page.
@@ -139,152 +147,191 @@ be provided by the user.
 It is possible to set an alternative search term input box on the page instead, by setting this to false and 
 also setting a searchbox_class value to identify the basic source of search terms, in which case such a box 
 must be manually created elsewhere on the page.
+
 searchbox_shade
 ---------------
 The background colour to apply to the search box
+
 sharesave_link
 --------------
 Default to true, in which case the searchbox - if drawn by facetview - will be appended with a button that 
 shows the full current search parameters as a URL.
+
 config_file
 -----------
 Specify as a URL from which to pull a JSON config file specifying these options.
+
 facets
 ------
 A list of facet objects which should be created as filter options on the page.
 As per elasticsearch facets settings, plus "display" as a display name for the facet, instead of field name.
 If these should be nested, define them with full scope e.g. nestedobj.nestedfield.
+
 extra_facets
 ------------
 An object of named extra facet objects that should be submitted and executed on each query.
 These will NOT be used to generate filters on the page, but the result object can be queried 
 for their content for other purposes.
+
 searchbox_fieldselect
 ---------------------
 A list of objects specifying fields to which search terms should be restricted.
 Each object should have a "display" value for displaying as the name of the option, 
 and a "field" option specifying the field to restrict the search to.
+
 search_sortby
 ----------------
 A list of objects describing sort option dropdowns. 
 Each object requires a "display" value, and "field" value upon which to sort results.
 NOTE sort fields must be unique on the ES index, NOT lists. Otherwise it will fail silently. Choose wisely.
+
 enable_rangeselect
 ------------------
 RANGES NEED SOME WORK AFTER RECENT UPDATE, KEEP DISABLED FOR NOW
 Enable or disable the ability to select a range of filter values
+
 include_facets_in_querystring
 -----------------------------
 Default to false.
 Whether or not to include full facet settings in the querystring when it is requested for display.
 This makes it easier to get the querystring for other purposes, but does not change the query that is 
 sent to the index.
+
 result_display
 --------------
 A display template for search results. It is a list of lists.
 Each list specifies a line. Within each list, specify the contents of the line using objects to describe 
 them. Each content piece should pertain to a particular "field" of the result set, and should specify what 
 to show "pre" and "post" the given field
+
 display_images
 --------------
 Default to true, in which case any image found in a given result object will be displayed to the left 
 in the result object output.
+
 description
 -----------
 Just an option to provide a human-friendly description of the functionality of the instantiated facetview.
 Like "search my shop". Will be displayed on the page. 
+
 search_url
 ----------
 The URL at the index to which searches should be submitted in order to retrieve JSON results.
+
 datatype
 --------
 The datatype that should be used when submitting a search to the index - e.g. JSON for local, JSONP for remote.
+
 initialsearch
 -------------
 Default to true, in which case a search-all will be submitted to the index on page load.
 Set to false to wait for user input before issuing the first search.
+
 fields
 ------
 A list of which fields the index should return in result objects (by default elasticsearch returns them all).
+
 partial_fields
 --------------
 A definition of which fields to return, as per elasticsearch docs http://www.elasticsearch.org/guide/reference/api/search/fields.html
+
 nested
 ------
 A list of keys for which the content should be considered nested for query and facet purposes.
 NOTE this requires that such keys be referenced with their full scope e.g. nestedobj.nestedfield.
 Only works on top-level keys so far.
+
 default_url_params
 ------------------
 Any query parameters that the index search URL needs by default.
+
 freetext_submit_delay
 ---------------------
 When search terms are typed in the search box, they are automatically submitted to the index.
 This field specifies in milliseconds how long to wait before sending another query - e.g. waiting
 for the user to finish typing a word.
+
 q
 -
 Specify a query value to start with when the page is loaded. Will be submitted as the initial search value 
 if initialsearch is enabled. Will also be set as the value of the searchbox on page load.
+
 predefined_filters
 ------------------
 Facet / query values to apply to all searches. Give each one a reference key, then in each object define it 
 as per an elasticsearch query for appending to the bool must. 
 If these filters should be applied at the nested level, then prefix the name with the relevant nesting prefix. 
 e.g. if the nested object is called stats, call the filter stats.MYFILTER.
+
 filter
 -------
 JSON document describing an `elasticsearch filter <http://www.elasticsearch.org/guide/reference/api/search/filter/>`_
+
 paging
 ------
+
 An object defining the paging settings:
+
     from
     ----
     Which result number to start displaying results from
+
     size
     ----
     How many results to get and display per "page" of results
+
 pager_on_top
 ------------
 Default to false, in which case the pager - e.g. result count and prev / next page buttons - only appear 
 at the bottom of the search results.
 Set to true to show the pager at the top of the search results as well.
+
 pager_slider
 ------------
 If this is set to true, then the paging options will be a left and right arrow at the bottom, with the 
 count in between, but a bit bigger and more slider-y than the standard one. Works well for displaying 
 featured content, for example.
+
 sort
 ----
 A list of objects defining how to sort the results, as per elasticsearch sorting.
 searchwrap_start
+
 searchwrap_end
 ----------------
 HTML values in which to wrap the full result set, to style them into the page they are being injected into.
 resultwrap_start
+
 resultwrap_end
 ----------------
 HTML values in which to wrap each result object
+
 result_box_colours
 ------------------
 A list of background colours that will be randomly assigned to each result object that has the "result_box" 
 class. To use this, specify the colours in this list and ensure that the "result_display" option uses the 
 "result_box" class to wrap the result objects.
+
 fadein
 ------
 Define a fade-in delay in milliseconds so that whenever a new list of results is displays, it uses the fade-in effect.
+
 post_search_callback
 --------------------
 This can define or reference a function that will be executed any time new search results are retrieved and presented on the page.
+
 pushstate
 ---------
 Updates the URL string with the current query when the user changes the search terms
+
 linkify
 -------
 Makes any URLs in the result contents into clickable links
+
 default_operator
 ----------------
 Sets the default operator in text search strings - elasticsearch uses OR by default, but can also be AND
+
 default_freetext_fuzzify
 ------------------------
 If this exists and is not false, it should be either * or ~. If it is * then * will be prepended and appended
@@ -811,41 +858,73 @@ search box - the end user will not know they are happening.
             }
         };
 
+        function indexes(source, find) {
+            var result = [];
+            for (i = 0; i < source.length; ++i) {
+                if (source.substring(i, i + find.length).toLowerCase() == find) {
+                    result.push(i);
+                }
+            }
+            return result;
+        }
+
+        var cached_urls = {};
         // given a result record, build how it should look on the page
         var buildrecord = function(index) {
             var record = options.data['records'][index];
             var result = options.resultwrap_start;
-            // add first image where available
-            // TODO: this is where we need to take the URL as stored in ID field, translate it to a web URL, and show it.
-            if (options.image_record) {
-                var url = record["id"].replace(options.url_from, options.url_to);
-                if (record["contentType"].toLowerCase() === "image/svg+xml") {
-                    // result += '<svg width="100" height="150"><use xlink:href="' + url + '" /></svg>';
-                    result += '<img class="thumbnail" style="float:left" width="100" height="150" src="' + url + '" />';
-                }
-                else {
-                    result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + url + '" />';
+
+            String.prototype.replaceAll = function(search, replacement) {
+                var target = this;
+                return target.replace(new RegExp(search, 'g'), replacement);
+            };
+
+            cached_urls[index] = record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/",
+                "http://imagecat.dyndns.org/weapons/alldata/");
+
+            result += '<a target="_blank" href="' + cached_urls[index] +'"><b style="font-size: 16pt;"> Title: (coming soon)</b></a><br><br>'
+
+            result += '\
+            <div class="btn-group" style="margin-bottom: 5px;">\
+                <a id="showad_button' + index + '" class="btn dropdown-toggle btn-default" data-toggle="dropdown"\
+                    href="#" style="display: inline-block; text-align: center; float: none; width: 30%;">\
+                    Show Original Ad\
+                <span class="caret"></span>\
+                </a>\
+                <div id="cached_ad' + index + '" class="box"></div><br><br>\
+            </div>'
+
+            // Define terms to be highlighted, allowing for easy highlighting and filtering of content text based on search/filters
+            //free text query val
+            var freetext_q = document.getElementById("freetext").value.replace(/"/g, '').replace("AND","")
+                .replace("OR","").replace("  "," ").split(" ");
+
+            if(freetext_q[freetext_q.length-1] == ""){
+                freetext_q = freetext_q.slice(0, freetext_q.length-1)
+            }
+    
+            // build list of filter values from query string
+            var filters = options.querystring.slice(options.querystring.indexOf("active_facets={"),
+                options.querystring.lastIndexOf("}")).replace("active_facets={","").split(/[:,]+/);
+            
+            filter_terms = []
+            for (var x = 0; x < filters.length; x++){
+                if (x % 2 == 1){
+                    filter_terms.push(filters[x].replace(/"/g, ''));
                 }
             }
-            else if (options.display_images) {
-                if (record.outlinks) {
-                    for (var out_link_idx=0; out_link_idx < record.outlinks.length; out_link_idx++) {
-                        var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
-                        var img = regex.exec(record.outlinks[out_link_idx]);
-                        if (img) {
-                            result += '<img class="thumbnail" style="float:left; width:100px; margin:0 5px 10px 0; max-height:150px;" src="' + img[0] + '" />';
-                        }
-                    }
-                    result += '<br clear="all">';
-                }
-            }
+            freetext_q != "" ? highlight_terms = filter_terms.concat(freetext_q) : highlight_terms = filter_terms;
+
             // add the record based on display template if available
             var display = options.result_display;
             var lines = '';
+        
             for ( var lineitem = 0; lineitem < display.length; lineitem++ ) {
                 line = "";
+                var filtered_line = ""; //used for content field only
+                var thekey;
                 for ( var object = 0; object < display[lineitem].length; object++ ) {
-                    var thekey = display[lineitem][object]['field'];
+                    thekey = display[lineitem][object]['field'];
                     var thevalue = getvalue(record, thekey);
                     if (thevalue && thevalue.toString().length) {
                         if (display[lineitem][object]['pre']) {
@@ -866,23 +945,173 @@ search box - the end user will not know they are happening.
                                 line += "...";
                             }
                         } else {
-                            if (options.text_limit) {
-                                thevalue = thevalue.length > options.text_limit ?
-                                    thevalue.substring(0, options.text_limit - 3) + "..." :
-                                    thevalue.substring(0, options.text_limit);
-                            }
                             line += thevalue;
                         }
                         display[lineitem][object]['post'] 
                             ? line += display[lineitem][object]['post'] : line += ' ';
                     }
                 }
-                if (line) {
-                    lines += line.replace(/^\s/,'').replace(/\s$/,'').replace(/\,$/,'') + "<br />";
+                line = line.replace(/^\s/,'').replace(/\s$/,'').replace(/\,$/,'').replaceAll(/\s\s+/," "); //multiple spaces were throwing off char limit
+                var max_content_lines = 5;
+                //"Content" field filtering: only add lines of "content" field that have a search/filter term in them
+                //-----------------------------------------------------------------------
+                if(line && thekey == "content" && highlight_terms.length > 0){ 
+                    for (var x=0; x < highlight_terms.length; x++){
+                        if(line.indexOf(highlight_terms[x]) > -1){
+                            var indices = indexes(line, highlight_terms[x]);
+                            for (j=0; j < indices.length; j++){
+                                if(j < max_content_lines){
+                                    var highlight_line = "..." + line.substring(indices[j]-60,indices[j]+60) + "...<br>"; //60 fits most to one line     
+                                    if(j == 0){
+                                        highlight_line = line.substring(indices[j]-60,indices[j]+60) + "...<br>"; //don't want ellipsis before "Content:"
+                                        if(highlight_line.indexOf("<b>Content:") == -1){
+                                            highlight_line = "<b>Content: </b>" + highlight_line
+                                        }
+                                        highlight_line = highlight_line.replace("<b>Content: </b>","<b>Content (" + 
+                                            highlight_terms[x] + "): </b><br>...");
+                                        if(x == 0){
+                                            highlight_line = "<br>" + highlight_line; //first needs to start with br
+                                        }
+                                    }
+                                    if(j > 0){
+                                        highlight_line = highlight_line.replace("<br><b>Content: </b>","");
+                                    }
+                                    filtered_line += highlight_line;
+                                    
+                                }
+                                else if (j == max_content_lines){
+                                    filtered_line += "...<br>"
+                                }
+                            }
+                        }
+                    }
+                    lines += filtered_line;
+                } else if (line) {
+                    if (options.text_limit) {
+                        line = line.length > options.text_limit ?
+                            line.substring(0, options.text_limit - 3) + "...</span><br>" :
+                            line.substring(0, options.text_limit);
+                    }
+                    lines += line + "<br />";
                 }
             }
-            lines ? result += lines : result += JSON.stringify(record,"","    ");
+            lines ? result += lines : result += JSON.stringify(record,"","    ");        
+            
+            // Used to handle problem of missing cached images
+            function UrlExists(url, cb){
+                try{
+                    jQuery.ajax({
+                        url:      url,
+                        dataType: 'text',
+                        type:     'HEAD',
+                        async: false,
+                        complete:  function(xhr){
+                            if(typeof cb === 'function')
+                               cb.apply(this, [xhr.status]);
+                        }
+                    });
+                } catch(e){
+                    return false;
+                }
+            }
+
+            // Image Scroller
+            //-----------------
+            if (options.display_images && record.outlinks) {
+                var img_src = [];
+                var image_urls = [];
+                var image_ids = [];
+                for (var x=0; x < record.outlinks.length; x++) {
+                    var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
+                    var img = regex.exec(record.outlinks[x]);
+                    if(img){
+                        var cached_img;
+                        var img_id;
+                        try{
+                            cached_img = record.outpaths[x].replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/",
+                                "http://imagecat.dyndns.org/weapons/alldata/");
+                            img_id = cached_img.split("/")[cached_img.split("/").length -1];
+                        } catch(e){
+                            console.log("Different number of outpaths and outlinks in index.")
+                        }
+                        
+                        //SOME IMAGES NOT IN CACHE - IF NOT THERE, TRY THE ACTUAL URL
+                        // UrlExists(cached_img, function(status){
+                        //     if(status === 200 ){
+                        //        img_src.push(cached_img);
+                        //     }
+                        //     else if(status === 404 || status == 0){
+                        //        img_src.push(record.outlinks[x])
+                        //     }
+                        // });
+
+                        img_src.push(cached_img);
+                        image_urls.push(record.outlinks[x]);
+
+                        image_ids.push(img_id)
+                    }
+                }
+                //Determine how many windows are needed
+                var scroll_windows;
+                if (image_ids.length % 4 == 0){
+                    scroll_windows = image_ids.length  / 4;
+                }
+                else{
+                    scroll_windows = Math.floor(image_ids.length  / 4) + 1;
+                }
+
+                // to move button to middle, add "display: inline-block; text-align: center; float: none;"
+                if(scroll_windows > 0){
+                    result += '\
+                    <div class="btn-group" style="margin-bottom: 10px;">\
+                        <center>\
+                            <a id="showimages_button' + index + '" class="btn dropdown-toggle btn-medium" data-toggle="dropdown"\
+                             href="#" style=" width: 30%;">\
+                                Show/Hide Images\
+                            <span class="caret"></span>\
+                            </a>\
+                        </center>\
+                    </div>\
+                    <div id="carousel' + index + '" class="carousel slide" data-ride="carousel" style="display: none;">\
+                        <div class="carousel-inner" role="listbox">\
+                            <div class="item active" style="margin-left: 100px;">'
+                                for (var x=0; x < 4; x++) {
+                                    if(image_ids[x]){
+                                        result += '<a target="_blank" href="http://imagecat.dyndns.org/weapons/imagespace/#search/' 
+                                            + image_ids[x] + '">\
+                                        <img class="scrollthumb" src="' + img_src[x] + '"></a>';
+                                    }
+                                }
+                            result += '\
+                            </div>'
+                                for (var x=2; x <= scroll_windows; x++){
+                                    result += '<div class="item" style="margin-left: 100px;">'
+                                    for (var j=0; j < image_ids.length; j++) {
+                                        if (j >= (x-1)*4 && j < x*4 && image_ids[j]) {
+                                            result += '<a target="_blank" href="http://imagecat.dyndns.org/weapons/imagespace/#search/' 
+                                                + image_ids[j] + '">\
+                                            <img class="scrollthumb" src="' + img_src[j] + '"></a>';
+                                        }
+                                    }
+                                    result += '</div>'
+                                }
+                            result += '</div>'
+                        //add scroller buttons if more than 1 scroll window is needed
+                        if(scroll_windows > 1){
+                            result += '\
+                            <a class="left carousel-control" href="#carousel' + index + '" role="button" data-slide="prev" style="vertical-align: middle;">\
+                                <i class="icon-chevron-left icon-white" aria-hidden="true" style="margin: auto; top:0; bottom:0; left:0; right:0; position: absolute; -webkit-transform:scale(1.3)"> </i>\
+                            </a>\
+                            <a class="right carousel-control" href="#carousel' + index + '" role="button" data-slide="next" style="vertical-align: middle;">\
+                                <i class="icon-chevron-right icon-white" aria-hidden="true" style="margin: auto; top:0; bottom:0; left:0; right:0; position: absolute; -webkit-transform:scale(1.3)"> </i>\
+                            </a>'
+                        }
+                        result += '</div>'
+                }
+            }
+            
             result += options.resultwrap_end;
+
             return result;
         };
 
@@ -891,7 +1120,6 @@ search box - the end user will not know they are happening.
             event.preventDefault();
             var record = options.data['records'][$(this).attr('href')];
             alert(JSON.stringify(record,"","    "));
-            
         }
 
         // put the results on the page
@@ -1125,7 +1353,7 @@ search box - the end user will not know they are happening.
             $.each(data.records, function(index, value) {
                 // write them out to the results div
                  $('#facetview_results', obj).append( buildrecord(index) );
-                 options.linkify ? $('#facetview_results tr:last-child', obj).linkify() : false;
+                 options.linkify ? $('#facetview_results tr:last-child', obj).linkify({target: "_blank"}) : false;
             });
             if ( options.result_box_colours.length > 0 ) {
                 jQuery('.result_box', obj).each(function () {
@@ -1140,6 +1368,42 @@ search box - the end user will not know they are happening.
             if (typeof options.post_search_callback == 'function') {
                 options.post_search_callback.call(this);
             }
+
+            //Highlight search terms and query filters (defined above)
+            //---------------------------------------
+            $("#facetview_results").highlight(highlight_terms);
+            
+            for (var x = 0; x < options.paging.size; x ++){
+                // Show image carousel when button clicked
+                //-----------------------------------------
+                $("#showimages_button" + x).on("click", function(){
+                    var button_index = $(this)[0].id.replace("showimages_button","");
+
+                    if (document.getElementById("carousel" + button_index).style.display == "block"){
+                        document.getElementById("carousel" + button_index).style.display = "none";
+                    } else{
+                        document.getElementById("carousel" + button_index).style.display = "block";
+                    }
+                 })
+            
+                // Show cached ad when button clicked
+                //-----------------------------------------      
+                $("#showad_button" + x).on("click", function(){
+                    var button_index = $(this)[0].id.replace("showad_button","");
+
+                    if (document.getElementById("cached_ad" + button_index).style.display == "block"){
+                        document.getElementById("cached_ad" + button_index).style.display = "none";
+                        document.getElementById("cached_ad" + button_index).innerHTML = null; 
+                    }
+                    else{
+                        document.getElementById("cached_ad" + button_index).innerHTML = '\
+                        <iframe class="frame" src="' + cached_urls[button_index] + 
+                        '" width = "815px" height = "200px"></iframe>';
+
+                        document.getElementById("cached_ad" + button_index).style.display = "block";
+                    }
+                })
+            }            
         };
 
         // ===============================================
@@ -1626,7 +1890,7 @@ search box - the end user will not know they are happening.
             };
             thefacetview += '</select>';
         };
-        thefacetview += '<input type="text" class="facetview_freetext span4" style="display:inline-block; margin:0 0 21px 0; background:' + options.searchbox_shade + ';" name="q" \
+        thefacetview += '<input type="text" tabindex="1" id="freetext" class="facetview_freetext span4" style="display:inline-block; margin:0 0 21px 0; background:' + options.searchbox_shade + ';" name="q" \
             value="" placeholder="search term" />';
         if ( options.sharesave_link ) {
             thefacetview += '<a class="btn facetview_sharesave" title="share or save this search" style="margin:0 0 21px 5px;" href=""><i class="icon-share-alt"></i></a>';
