@@ -17,6 +17,16 @@ Demo
 - See http://okfnlabs.org/facetview/ (no search functionality, elasticsearch cluster no longer active)
 - Or if you have the source just take a look at index.html or simple.html and run elasticsearch on local machine
 
+Deployment Instructions
+=======================
+1. Gain access to imagecat.dyndns.org
+2. Gain mdeploy access
+3. ssh username@imagecat.dyndns.org
+4. ssh mdeploy@localhost
+5. cd src/weapons && git pull
+6. cp -R weapons/facetview_ads to weapons deployment dir in $HOME/weapons/facetview
+7. rm -r $HOME/weapons/facetview/ads
+8. mv $HOME/weapons/facetview/facetview_ads $HOME/weapons/facetview/ads
 
 Status
 ======
