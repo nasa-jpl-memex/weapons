@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class LoginHandler implements InteractiveSeleniumHandler {
 
@@ -137,14 +138,13 @@ public class LoginHandler implements InteractiveSeleniumHandler {
      * @param driver selenium web driver instance
      */
     @Override
-    public void processDriver(WebDriver driver) {
+    public String processDriver(WebDriver driver) {
         String domainName = getDomainName(driver.getCurrentUrl());
-        if (domainHandlers.containsKey(domainName)) {
+        if(shouldProcessURL(domainName)) {
             domainHandlers.get(domainName).handle(driver);
-        } else if (jsRequiredDomains.contains(domainName)){
-            // this url needs javascript to be executed.
-            // Selenium does it by itself, so nothing more to be done here!
         }
+        // // TODO: 4/17/16 change return type of parent method to generic type and return void
+        return "";
     }
 
     /**
