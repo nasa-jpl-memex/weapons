@@ -37,21 +37,21 @@ jQuery(document).ready(function($) {
     // "datatype": 'jsonp',
     "facets": [
           {"field":"persons", "display":"Persons"},
-          {"field":"ner_phone_number_t_md", "display":"Phone Number"},
-          {"field":"ner_weapon_name_ts_md", "display":"Weapon Names"},
+          {"field":"phonenumbers", "display":"Phone Number"},
+          {"field":"weaponnames", "display":"Weapon Names"},
           {"field":"weapontypes", "display":"Weapon Types"},
           {"field":"ner_money_ts_md", "display":"Weapon Cost"},
           {"field":"host", "display":"Weapon Website"},
           {"field":"locations", "display":"Locations"},
           {"field":"organizations", "display":"Organizations"},
-          {"field":"dates", "display":"Dates"},
-          {"field":"indexedAt", "display":"Crawl Dates"}
+          {"field":"dates_aggr", "display":"Ad Dates (Aggregated by month)"}
+          // {"field":"indexedAt", "display":"Crawl Dates"}
     ],
     paging: {
         from: 0,
         size: 10
     },
-    // "linechart_field"  : "dates",
+    "linechart_field"  : "dates_aggr",
     // "dendrogram_field" : "authors", 
     "display_images" : true,
     "text_limit": 400,
