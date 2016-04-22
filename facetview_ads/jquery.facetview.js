@@ -882,8 +882,12 @@ search box - the end user will not know they are happening.
             cached_urls[index] = record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/",
                 "http://imagecat.dyndns.org/weapons/alldata/");
 
-            result += '<a target="_blank" href="' + cached_urls[index] +'"><b style="font-size: 16pt;"> Title: (coming soon)</b></a><br><br>'
-
+            // console.log(record.title)
+            if(record.title){
+                result += '<a target="_blank" href="' + cached_urls[index] +'"><b style="font-size: 13pt;">' + record.title + '</b></a><br><br>'
+            } else{
+                result += '(no title available)<br><br>'
+            }
             result += '\
             <div class="btn-group" style="margin-bottom: 5px;">\
                 <a id="showad_button' + index + '" class="btn dropdown-toggle btn-default" data-toggle="dropdown"\
@@ -1130,16 +1134,7 @@ search box - the end user will not know they are happening.
             options.data = data;
             
             // initialize plot                                                                                                                                                       
-            if (line_chart == null && options.linechart_field != null && options.linechart_field != "") {
-                line_chart = c3.generate({
-                    bindto: '#line_chart',
-                    data: {
-                        x: 'year',
-                        columns: [
-                        ]
-                    }
-                });
-            }
+            
 
 
             // for each filter setup, find the results for it and append them to the relevant filter
@@ -1168,7 +1163,7 @@ search box - the end user will not know they are happening.
                 }
 
         var years = ['year'];
-                var year_hits = ['hits'];
+        var year_hits = ['hits'];
         var lineChartFacet = false;
         var dendrogramFacet = false;
         if (facet == options.linechart_field){
@@ -1201,31 +1196,54 @@ search box - the end user will not know they are happening.
             var year_hash = {}
             for (var i = 0; i < years.length; i++){
                 if (years[i] == "year") continue;
-                var year = years[i].substring(0,4);
+                // var year = years[i].substring(0,4);
+                var year = years[i].substring(0,10);
                 if (year in year_hash){
-                    hits = parseInt(years[year]);
-                    hits += parseInt(year_hits[i]);
+                    // hits = parseInt(years[year]);
+                    // hits += parseInt(year_hits[i]);
+                    hits = years[year];
+                    hits += year_hits[i];
                 }
-                            else{
-                                year_hash[year] = year_hits[i];
+                else{
+                    year_hash[year] = year_hits[i];
                 }
             }
 
             years = [];
             year_hits = [];
-            years.push('year');
+            years.push('x');
             year_hits.push('hits');
             for (var year in year_hash){
-            years.push(year);
-            year_hits.push(year_hash[year]);
+                years.push(year);
+                year_hits.push(year_hash[year]);
             }
-                                    
-            line_chart.load({
-            columns: [
-                years,
-                year_hits
-                ]
-            });
+
+            if (line_chart == null && options.linechart_field != null && options.linechart_field != "") {
+                var line_chart = c3.generate({
+                    bindto: '#line_chart',
+                    data: {
+                        x: 'x',
+                        columns: [
+                            years,
+                            year_hits
+                        ]
+                    },
+                    axis: {
+                        x:{
+                            type: 'timeseries',
+                            tick:{
+                                format: function(d){
+                                    month = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+                                    return d.getFullYear() + "-" + month.getMonth( );
+                                }  ,
+                                count: 10,
+                                fit: false
+                            }
+                        }
+                    }
+
+                });
+            }
         }
 
         if (dendrogramFacet){
