@@ -1606,10 +1606,14 @@ search box - the end user will not know they are happening.
                 solr_url_params += item + "=" + options.default_url_params[item] + "&";
             }
 
+
             // do paging params
             for (var item in options.paging) {
                 solr_url_params += options.solr_paging_params[item] + "=" + options.paging[item] + "&";
             }
+            
+            solr_url_params += 'sort=score+desc,title+desc&'
+
             var from = options.paging.from ? options.paging.from : 0;
             var size = options.paging.size ? options.paging.size : 10;
             facetview_history_params += 'paging={"from":' + from + ',"size":' + size + '}&';
