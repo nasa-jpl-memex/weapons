@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 public class LoginHandler implements InteractiveSeleniumHandler {
 
@@ -57,7 +56,7 @@ public class LoginHandler implements InteractiveSeleniumHandler {
          * Specialized handler for domain shall implement this method
          * @param driver - an instance of selenium web driver
          */
-        public abstract void handle(WebDriver driver);
+        public abstract String handle(WebDriver driver, String webContent);
     }
 
     /**
@@ -89,7 +88,7 @@ public class LoginHandler implements InteractiveSeleniumHandler {
 
 
         @Override
-        public void handle(WebDriver driver) {
+        public String handle(WebDriver driver, String webContent) {
             String url = driver.getCurrentUrl();
             //checking if there is a login form
             WebElement formElement = driver.findElement(By.xpath("//FORM[@id='login']"));
@@ -99,7 +98,7 @@ public class LoginHandler implements InteractiveSeleniumHandler {
                 LOG.debug("Detected Login Form; Run login script {}", url);
                 LOG.debug("Page source length before login {}", driver.getPageSource().length());
                 JavascriptExecutor jsx = (JavascriptExecutor) driver;
-                jsx.executeScript(loginScript);
+                jsx.executeScript(loginScript + webContent + ";");
                 //After login server will prompt a page and redirect to actual page
                 try {
                     new WebDriverWait(driver, DELAY).wait();
@@ -109,6 +108,7 @@ public class LoginHandler implements InteractiveSeleniumHandler {
                 LOG.debug("Current URL {}", driver.getCurrentUrl());
                 LOG.debug("Page source length after login {}", driver.getPageSource().length());
             }
+            return webContent;
         }
     }
 
@@ -140,11 +140,12 @@ public class LoginHandler implements InteractiveSeleniumHandler {
     @Override
     public String processDriver(WebDriver driver) {
         String domainName = getDomainName(driver.getCurrentUrl());
+        String accumulatedData = "";
         if(shouldProcessURL(domainName)) {
-            domainHandlers.get(domainName).handle(driver);
+            domainHandlers.get(domainName).handle(driver, accumulatedData);
         }
         // // TODO: 4/17/16 change return type of parent method to generic type and return void
-        return "";
+        return accumulatedData;
     }
 
     /**
