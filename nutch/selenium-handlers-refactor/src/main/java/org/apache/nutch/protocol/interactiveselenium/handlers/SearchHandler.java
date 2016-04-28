@@ -3,9 +3,10 @@ package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 import org.apache.nutch.protocol.interactiveselenium.InteractiveSeleniumHandler;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
+import java.util.List;
 
 /** Search handler to find search fields and input search keys **/
 
@@ -25,6 +26,7 @@ public class SearchHandler implements InteractiveSeleniumHandler {
         switch (url) {
             case "http://www.ksl.com/" : return "ksl-header-search__input";
             case "http://www.wantaddigest.com/": return "//*[@id='country']";
+            case "http://www.gowilkes.com/": return "//*[@id='search_box']";
             default: return "";
         }
     }
@@ -55,22 +57,31 @@ public class SearchHandler implements InteractiveSeleniumHandler {
 
     private String genericSearchHandler(WebDriver webDriver, String htmlpage, String searchWindowPath, String searchInputPath, String searchButtonPath, String searchRadioButtonPath, String searchKey) {
         webDriver.manage().window().maximize();
-        WebElement searchWindow = webDriver.findElement(By.xpath(searchWindowPath));
-        searchWindow.click();
-        WebElement username = webDriver.findElement(By.className(searchInputPath));
-        username.sendKeys(searchKey);
-        WebElement classifiedRadioBtn = webDriver.findElement(By.xpath(searchRadioButtonPath));
-        classifiedRadioBtn.click();
-        WebElement loginBtn = webDriver.findElement(By.xpath(searchButtonPath));
-        loginBtn.click();
-        htmlpage+="</body></html>";
-        JavascriptExecutor js = (JavascriptExecutor) webDriver;
-        js.executeScript("document.body.innerHTML=arguments[0]", htmlpage);
+        try {
+            WebElement findSearchWindow = webDriver.findElement(By.xpath(searchWindowPath));
+            if(findSearchWindow.isDisplayed()) findSearchWindow.click();
+            WebElement username = webDriver.findElement(By.xpath(searchInputPath));
+            if(username.isDisplayed()) username.sendKeys(searchKey);
+            WebElement classifiedRadioBtn = webDriver.findElement(By.xpath(searchRadioButtonPath));
+            if(classifiedRadioBtn.isSelected()) classifiedRadioBtn.click();
+            WebElement loginBtn = webDriver.findElement(By.xpath(searchButtonPath));
+            if(loginBtn.isDisplayed()) loginBtn.click();
+            try{
+                Thread.sleep(5000);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            htmlpage += webDriver.findElement(By.tagName("body")).getAttribute("innerHTML");
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
         return htmlpage;
     }
 
     public String processDriver (WebDriver webDriver){
-        String htmlpage="<html><body>";
+        String htmlpage = "";
         String currentUrl = webDriver.getCurrentUrl();
         String searchWindowPath = searchWindowPathFromUrl(currentUrl);
         String searchInputPath = searchInputPathFromUrl(currentUrl);
