@@ -95,15 +95,13 @@ public class LoginHandler implements InteractiveSeleniumHandler {
             passwordField.sendKeys("usccsci572");
             WebElement loginBtn=driver.findElement(By.xpath("//*[@id='login']/div[1]/div/div/fieldset/dl[4]/dd/input[3]"));
             loginBtn.click();
-            try{
-                Thread.sleep(5000);
-                java.util.List<WebElement> anchorTags =driver.findElements(By.xpath("//a"));
-                for (WebElement anchorTag : anchorTags){
-                    webContent+="<a href='"+anchorTag.getAttribute("href")+"'>test</a>";
-                }
-            }catch(Exception e){
+            try {
+                Thread.sleep(DELAY);
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
+            webContent += driver.findElement(By.tagName("body")).getAttribute("innerHTML");
             return webContent;
         }
     }
