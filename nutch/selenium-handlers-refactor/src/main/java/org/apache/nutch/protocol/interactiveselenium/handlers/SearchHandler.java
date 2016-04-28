@@ -1,3 +1,20 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 
@@ -27,6 +44,7 @@ public class SearchHandler implements InteractiveSeleniumHandler {
             case "http://www.ksl.com/" : return "ksl-header-search__input";
             case "http://www.wantaddigest.com/": return "//*[@id='country']";
             case "http://www.gowilkes.com/": return "//*[@id='search_box']";
+            case "http://www.nextechclassifieds.com/" : return "//*[@id='nav-search-input']";
             default: return "";
         }
     }
@@ -37,7 +55,7 @@ public class SearchHandler implements InteractiveSeleniumHandler {
             case "http://www.kyclassifieds.com/" : return "//*[@id='go']";
             case "http://www.gowilkes.com/" : return "//*[@id='search_container']/form/table/tbody/tr/td[2]/span";
             case "http://www.wantaddigest.com/" : return "//*[@id='left-home']/form/input[2]";
-            case "" : return "//*[@id='search-btn']";
+            case "http://www.nextechclassifieds.com/" : return "//*[@id='search-btn']";
             default: return "";
         }
     }
@@ -45,6 +63,7 @@ public class SearchHandler implements InteractiveSeleniumHandler {
     private String searchRadioButtonPath(String url) {
         switch (url) {
             case "http://www.gowilkes.com/" : return "//*[@id='search_container']/form/div/div[5]/input";
+            case "http://www.nextechclassifieds.com/" : return "//*[@id='nav-search-input']";
             default: return "";
         }
     }
@@ -60,13 +79,13 @@ public class SearchHandler implements InteractiveSeleniumHandler {
         try {
             WebElement findSearchWindow = webDriver.findElement(By.xpath(searchWindowPath));
             if(findSearchWindow.isDisplayed()) findSearchWindow.click();
-            WebElement username = webDriver.findElement(By.xpath(searchInputPath));
-            if(username.isDisplayed()) username.sendKeys(searchKey);
             WebElement classifiedRadioBtn = webDriver.findElement(By.xpath(searchRadioButtonPath));
             if(classifiedRadioBtn.isSelected()) classifiedRadioBtn.click();
+            WebElement username = webDriver.findElement(By.xpath(searchInputPath));
+            if(username.isDisplayed()) username.sendKeys(searchKey);
             WebElement loginBtn = webDriver.findElement(By.xpath(searchButtonPath));
             if(loginBtn.isDisplayed()) loginBtn.click();
-            try{
+            try {
                 Thread.sleep(5000);
             }
             catch (Exception e) {
@@ -81,7 +100,7 @@ public class SearchHandler implements InteractiveSeleniumHandler {
     }
 
     public String processDriver (WebDriver webDriver){
-        String htmlpage = "";
+        String htmlpage="";
         String currentUrl = webDriver.getCurrentUrl();
         String searchWindowPath = searchWindowPathFromUrl(currentUrl);
         String searchInputPath = searchInputPathFromUrl(currentUrl);
