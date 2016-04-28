@@ -31,8 +31,6 @@ public class SearchHandler implements InteractiveSeleniumHandler {
 
     private String searchWindowPathFromUrl(String url) {
         switch (url) {
-            case "http://www.ksl.com/" : return "//*[@id='kslHeader']/div/div[1]/div/div[4]/a/span";
-            case "http://www.kyclassifieds.com/" : return "//*[@id='s']";
             case "http://www.gowilkes.com/": return "//*[@id='search_box']";
             case "http://www.nextechclassifieds.com/" : return "//*[@id='nav-search-input']";
             default: return "";
@@ -41,8 +39,6 @@ public class SearchHandler implements InteractiveSeleniumHandler {
 
     private String searchInputPathFromUrl(String url) {
         switch (url) {
-            case "http://www.ksl.com/" : return "ksl-header-search__input";
-            case "http://www.wantaddigest.com/": return "//*[@id='country']";
             case "http://www.gowilkes.com/": return "//*[@id='search_box']";
             case "http://www.nextechclassifieds.com/" : return "//*[@id='nav-search-input']";
             default: return "";
@@ -51,10 +47,7 @@ public class SearchHandler implements InteractiveSeleniumHandler {
 
     private String searchButtonPathFromUrl(String url) {
         switch (url) {
-            case "http://www.ksl.com/" : return "//*[@id='kslHeader']/div/div[1]/div/div[4]/div/form/button";
-            case "http://www.kyclassifieds.com/" : return "//*[@id='go']";
             case "http://www.gowilkes.com/" : return "//*[@id='search_container']/form/table/tbody/tr/td[2]/span";
-            case "http://www.wantaddigest.com/" : return "//*[@id='left-home']/form/input[2]";
             case "http://www.nextechclassifieds.com/" : return "//*[@id='search-btn']";
             default: return "";
         }
