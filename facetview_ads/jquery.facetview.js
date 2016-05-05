@@ -882,7 +882,6 @@ search box - the end user will not know they are happening.
             cached_urls[index] = record.id.replace("file:/data2/USCWeaponsStatsGathering/nutch/full_dump/",
                 "http://imagecat.dyndns.org/weapons/alldata/");
 
-            // console.log(record.title)
             if(record.title){
                 result += '<a target="_blank" href="' + cached_urls[index] +'"><b style="font-size: 13pt;">' + record.title + '</b></a><br><br>'
             } else{
@@ -1026,7 +1025,7 @@ search box - the end user will not know they are happening.
                 var image_urls = [];
                 var image_ids = [];
                 for (var x=0; x < record.outlinks.length; x++) {
-                    var regex = /(http:\/\/\S+?\.(jpg|png|gif|jpeg))/;
+                    var regex = /((http|https):\/\/\S+?\.(jpg|png|gif|jpeg|JPG|PNG|GIF|JPEG))/;
                     var img = regex.exec(record.outlinks[x]);
                     if(img){
                         var cached_img;
@@ -1705,7 +1704,7 @@ search box - the end user will not know they are happening.
             };
             // make the search query
             var qrystr = '';
-            var url_1 = options.search_url;;
+            var url_1 = options.search_url;
             if ( options.search_index == "elasticsearch") {
                 qrystr = elasticsearchquery();
             } else {

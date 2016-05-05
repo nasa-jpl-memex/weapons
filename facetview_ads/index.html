@@ -30,12 +30,37 @@
 
   <script type="text/javascript">
 
-jQuery(document).ready(function($) {
-  $('.facet-view-simple').facetview({
-    "search_url": "http://imagecat.dyndns.org/solr/imagecatdev/select?",
-    "search_index": 'solr',
-    // "datatype": 'jsonp',
-    "facets": [
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(decodeURIComponent(location.search));
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function drawPage(nav_page) {
+  nav_page = typeof nav_page !== 'undefined' ?  nav_page : false;
+  document.cookie="query="+getParameterByName('query');
+
+  var query = getParameterByName('query');
+  var paging = getParameterByName('paging')
+  paging = $.parseJSON(paging);
+  if (!paging)
+  {
+      paging = {"from": 0, "size": 10};
+  };
+  if (!paging.from) {
+      paging['from'] = 0;
+  }
+  if (!paging.size) {
+      paging['size'] = 10;
+  }
+
+  var facets = getParameterByName('facets')
+  facets = $.parseJSON(facets);
+
+  // Initial default set of facets.  URL parameters can redefine/refine this.
+  if (!facets) {
+    facets = [
           {"field":"persons", "display":"Persons"},
           {"field":"phonenumbers", "display":"Phone Number"},
           {"field":"weaponnames", "display":"Weapon Names"},
@@ -45,6 +70,20 @@ jQuery(document).ready(function($) {
           {"field":"locations", "display":"Locations"},
           {"field":"organizations", "display":"Organizations"},
           {"field":"dates_aggr", "display":"Ad Dates (Aggregated by month)"}
+      ]
+  }
+  var active_facets = getParameterByName('active_facets')
+  active_facets = $.parseJSON(active_facets);
+
+  if (!active_facets) active_facets = {};
+
+  $('.facet-view-simple').empty();
+  $('.facet-view-simple').facetview({
+    "search_url": "http://imagecat.dyndns.org/solr/imagecatdev/select?",
+    "search_index": 'solr',
+    // "datatype": 'jsonp',
+    "facets": [
+          
           // {"field":"indexedAt", "display":"Crawl Dates"}
     ],
     paging: {
@@ -55,6 +94,14 @@ jQuery(document).ready(function($) {
     // "dendrogram_field" : "authors", 
     "display_images" : true,
     "text_limit": 400,
+    "object_limit": 10,
+    "paging": paging,
+    "q" : query,
+    "nav_page": nav_page,
+    "facets": facets,
+    // "active_facets": active_facets,
+    "fields": ["persons", "phonenumbers", "weaponnames", "weapontypes",
+               "ner_money_ts_md", "host", "locations", "organizations", "dates_aggr"],
     "result_display" : [ 
         [
           {
@@ -123,7 +170,11 @@ jQuery(document).ready(function($) {
     "linkify" : true
     }
   );
-$('.facetview_filtershow' ).trigger( "click" );
+// $('.facetview_filtershow' ).trigger( "click" );
+};
+
+jQuery(document).ready(function($) {
+   drawPage();
 });
 
 window.onpopstate = function(state, title, url) {
