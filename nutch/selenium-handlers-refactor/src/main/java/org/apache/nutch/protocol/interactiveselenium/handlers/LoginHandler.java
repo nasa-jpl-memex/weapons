@@ -19,20 +19,14 @@ package org.apache.nutch.protocol.interactiveselenium.handlers;
 
 import org.apache.nutch.protocol.interactiveselenium.InteractiveSeleniumHandler;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 public class LoginHandler implements InteractiveSeleniumHandler {
 
@@ -57,7 +51,7 @@ public class LoginHandler implements InteractiveSeleniumHandler {
          * Specialized handler for domain shall implement this method
          * @param driver - an instance of selenium web driver
          */
-        public abstract void handle(WebDriver driver);
+        public abstract String handle(WebDriver driver, String webContent);
     }
 
     /**
@@ -66,15 +60,17 @@ public class LoginHandler implements InteractiveSeleniumHandler {
     private static class ArgunTraderHandler extends DomainHandler {
 
         private static final Logger LOG = LoggerFactory.getLogger(ArgunTraderHandler.class);
-        public static final String DOMAIN_NAME = "www.arguntrader.com";
+        public static final String DOMAIN_NAME = "http://arguntrader.com/";
         public static final int DELAY = 8*1000; //this site has redirects which takes time
 
         private String loginScript;
 
+        // Just retaining this script for future reference for design which is otherwise unused.
+
         public ArgunTraderHandler(String userName, String password) {
             super(userName, password, DOMAIN_NAME);
             this.loginScript =
-                    "var formEl = document.getElementById('login');\n" +
+                    "var formEl = document.getElementByName('login');\n" +
                             "if (formEl != null){\n" +
                             "   var unInput = formEl.querySelector('#username');\n" +
                             "   var pwInput = formEl.querySelector('#password');\n" +
@@ -89,26 +85,24 @@ public class LoginHandler implements InteractiveSeleniumHandler {
 
 
         @Override
-        public void handle(WebDriver driver) {
-            String url = driver.getCurrentUrl();
-            //checking if there is a login form
-            WebElement formElement = driver.findElement(By.xpath("//FORM[@id='login']"));
-            if (formElement == null) {
-                LOG.debug("SKIP:Cant find Login form in {}", url);
-            } else {
-                LOG.debug("Detected Login Form; Run login script {}", url);
-                LOG.debug("Page source length before login {}", driver.getPageSource().length());
-                JavascriptExecutor jsx = (JavascriptExecutor) driver;
-                jsx.executeScript(loginScript);
-                //After login server will prompt a page and redirect to actual page
-                try {
-                    new WebDriverWait(driver, DELAY).wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                LOG.debug("Current URL {}", driver.getCurrentUrl());
-                LOG.debug("Page source length after login {}", driver.getPageSource().length());
+        public String handle(WebDriver driver, String webContent) {
+            driver.manage().window().maximize();
+            WebElement searchField=driver.findElement(By.xpath("//*[@id='page-header']/div[2]/div/ul[2]/li[3]/a"));
+            searchField.click();
+            WebElement usernameField=driver.findElement(By.xpath("//*[@id='username']"));
+            usernameField.sendKeys("testing");
+            WebElement passwordField=driver.findElement(By.xpath("//*[@id='password']"));
+            passwordField.sendKeys("usccsci572");
+            WebElement loginBtn=driver.findElement(By.xpath("//*[@id='login']/div[1]/div/div/fieldset/dl[4]/dd/input[3]"));
+            loginBtn.click();
+            try {
+                Thread.sleep(DELAY);
             }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+            webContent += driver.findElement(By.tagName("body")).getAttribute("innerHTML");
+            return webContent;
         }
     }
 
@@ -139,39 +133,21 @@ public class LoginHandler implements InteractiveSeleniumHandler {
      */
     @Override
     public String processDriver(WebDriver driver) {
-        String domainName = getDomainName(driver.getCurrentUrl());
+        String domainName = driver.getCurrentUrl();
+        String accumulatedData = "";
         if(shouldProcessURL(domainName)) {
-            domainHandlers.get(domainName).handle(driver);
+            accumulatedData += domainHandlers.get(domainName).handle(driver, accumulatedData);
         }
         // // TODO: 4/17/16 change return type of parent method to generic type and return void
-        return "";
+        return accumulatedData;
     }
-
-    /**
-     * gets domain /host name of URL
-     * @param urlString url string
-     * @return domain/host name on success; <code>null</code> on failure
-     */
-    private String getDomainName(String urlString){
-        try {
-            //if there is an entry
-            return new URL(urlString).getHost();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     /**
      * @param urlString url to check for handler's interest
      * @return true if this handler is interested with the input url
      */
     @Override
     public boolean shouldProcessURL(String urlString) {
-        String domainName = getDomainName(urlString);
-        // True if this domain is registered for special treatment
-        // or just the Javascript script execution is required
-        return domainHandlers.containsKey(domainName)
-                || jsRequiredDomains.contains(domainName);
+        return domainHandlers.containsKey(urlString)
+                || jsRequiredDomains.contains(urlString);
     }
 }
